@@ -27,6 +27,9 @@
 #include <mach/jzsnd.h>
 #include <mach/jzssi.h>
 #include <mach/jzuart.h>
+#include <linux/gpio_keys.h>
+#include <linux/input.h>
+#include <linux/input/matrix_keypad.h>
 
 /* device IO define array */
 struct jz_gpio_func_def platform_devio_array[] = {
@@ -935,3 +938,61 @@ struct platform_device jz_wdt_device = {
 	.resource      = jz_wdt_resources,
 };
 #endif
+static const uint32_t jzx1000_keymap[] = {
+	      KEY(0,0, KEY_0),
+	      KEY(0,1, KEY_1),
+	      KEY(0,2, KEY_2),
+	      KEY(0,3, KEY_3),
+	      KEY(1,0, KEY_4),
+	      KEY(1,1, KEY_5),
+	      KEY(1,2, KEY_6),
+	      KEY(1,3, KEY_7),
+	      KEY(2,0, KEY_8),
+	      KEY(2,1, KEY_9),
+	      KEY(2,2, KEY_UP),
+	      KEY(2,3, KEY_DOWN),
+	      KEY(3,0, KEY_LEFT),
+	      KEY(3,1, KEY_RIGHT),
+	      KEY(3,2, KEY_HOME),
+	      KEY(3,3, KEY_BACK),
+};
+
+static struct matrix_keymap_data jzx1000_keymap_data= {
+         .keymap            = jzx1000_keymap,
+         .keymap_size       = ARRAY_SIZE(jzx1000_keymap),
+};
+
+static const int jzx1000_row_gpios[] =
+{
+                      GPIO_PA(0),
+                      GPIO_PA(1),
+                      GPIO_PA(2),
+                      GPIO_PA(3),
+};
+static const int jzx1000_col_gpios[] =
+{
+                      GPIO_PA(4),
+                      GPIO_PA(5),
+                      GPIO_PA(6),
+                      GPIO_PA(7),
+};
+static struct matrix_keypad_platform_data jz_matrix_pdata = {
+         .keymap_data           = &jzx1000_keymap_data,
+         .row_gpios             = jzx1000_row_gpios,
+         .col_gpios             = jzx1000_col_gpios,
+         .num_row_gpios         = ARRAY_SIZE(jzx1000_row_gpios),
+         .num_col_gpios         = ARRAY_SIZE(jzx1000_col_gpios),
+         .col_scan_delay_us     = 10,
+         .debounce_ms           = 80,
+         .wakeup                = 1,
+         .active_low            = 0,
+};
+
+struct platform_device jz_matrix_device = {
+        .name           = "matrix-keypad",
+        .id             = -1,
+        .num_resources  = 0,
+        .dev            = {
+                .platform_data  = &jz_matrix_pdata,
+        }
+};

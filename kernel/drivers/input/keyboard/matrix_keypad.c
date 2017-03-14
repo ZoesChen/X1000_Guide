@@ -140,6 +140,7 @@ static void matrix_keypad_scan(struct work_struct *work)
 
 		activate_col(pdata, col, false);
 	}
+	printk("%s %s %d \n",__FILE__,__FUNCTION__,__LINE__); 
 
 	for (col = 0; col < pdata->num_col_gpios; col++) {
 		uint32_t bits_changed;
@@ -153,6 +154,8 @@ static void matrix_keypad_scan(struct work_struct *work)
 				continue;
 
 			code = MATRIX_SCAN_CODE(row, col, keypad->row_shift);
+			printk("%s %s %d : key[%s], row[%d], col[%d]\n",__FILE__,__FUNCTION__,__LINE__); 
+			printk("%s %s %d : val = %d, key = %d \n",__FILE__,__FUNCTION__,__LINE__, code, keycodes[code]); 
 			input_event(input_dev, EV_MSC, MSC_SCAN, code);
 			input_report_key(input_dev,
 					 keycodes[code],
@@ -471,6 +474,7 @@ static int matrix_keypad_probe(struct platform_device *pdev)
 	struct matrix_keypad *keypad;
 	struct input_dev *input_dev;
 	int err;
+	printk("Enter into matrix_keypad_probe\n");
 
 	pdata = dev_get_platdata(&pdev->dev);
 	if (!pdata) {
@@ -483,6 +487,7 @@ static int matrix_keypad_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "no keymap data defined\n");
 		return -EINVAL;
 	}
+	printk("%s %s %d \n",__FILE__,__FUNCTION__,__LINE__); 
 
 	keypad = kzalloc(sizeof(struct matrix_keypad), GFP_KERNEL);
 	input_dev = input_allocate_device();
@@ -572,7 +577,21 @@ static struct platform_driver matrix_keypad_driver = {
 		.of_match_table = of_match_ptr(matrix_keypad_dt_match),
 	},
 };
-module_platform_driver(matrix_keypad_driver);
+
+static int __init matrix_keypad_init(void)
+{
+	printk("Enter into matrix_keypad_init\n");
+	return platform_driver_register(&matrix_keypad_driver);
+}
+
+static void __exit matrix_keypad_exit(void)
+{
+	platform_driver_unregister(&matrix_keypad_driver);
+}
+
+late_initcall(matrix_keypad_init);
+module_exit(matrix_keypad_exit);
+
 
 MODULE_AUTHOR("Marek Vasut <marek.vasut@gmail.com>");
 MODULE_DESCRIPTION("GPIO Driven Matrix Keypad Driver");
