@@ -62,7 +62,8 @@ void playInterface(int mNum)
 		printf("%s: Be wake up\n", __FUNCTION__);
 		pthread_mutex_unlock(&musicLock);
 	}
-
+	/*Add by Zoe: sleep 10ms to make sure music thread wait music Cond*/
+	usleep(10000);
 	if (playFlag == DISABLEPLAY) {
 		printf("%s: Now is stoping\n", __FUNCTION__);
 		pthread_mutex_lock(&musicLock);
