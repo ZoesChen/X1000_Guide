@@ -752,7 +752,3 @@ config TILE_SROM
 
 endmenu
 
-menu "CHIGOO_MCU"
-source "drivers/char/Chigoo/mcu_communication/Kconfig"
-endmenu
-
