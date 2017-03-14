@@ -1,0 +1,16 @@
+/**
+ * @brief
+ * Test-x2d is a demo of operate x2d. Contains photo overlay, rotation and so on.
+ * test-x2d have created in the directory /testsuit/test-x2d/
+ *
+ * Operation method: ./test-x2d
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += test-x2d
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Test-x2d Description;

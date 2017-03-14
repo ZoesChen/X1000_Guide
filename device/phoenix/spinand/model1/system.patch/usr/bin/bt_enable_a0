@@ -1,0 +1,50 @@
+#!/bin/sh
+
+# turn on dbus-daemon service
+mkdir -p /tmp/dbus
+mkdir -p /var/lib/dbus
+killall dbus-daemon
+killall brcm_patchram_plus
+killall bluetoothd
+rm /var/run/messagebus.pid
+echo 0 > /sys/class/rfkill/rfkill0/state
+dbus-uuidgen > /var/lib/dbus/machine-id
+dbus-daemon --config-file=/etc/dbus-1/system.conf
+
+# bluetooth power on
+echo 1 > /sys/class/rfkill/rfkill0/state
+sleep 1 # if invoke this script in c with system(), must sleep for a while!!!!!
+# attach firmware
+#rtk_hciattach -n -s 115200 /dev/ttyS1 rtk_h5 >/dev/null &
+#echo 1 > /proc/bluetooth/sleep/proto
+brcm_patchram_plus --enable_hci --baudrate 3000000 --no2bytes --patchram /lib/firmware/BCM4343A0_001.001.034.0056.0221_26M_ORC.hcd /dev/ttyS0 --tosleep=50000 --use_baudrate_for_download --enable_lpm &
+#--bd_addr 43:29:b1:55:00:01 # --enable_pcm
+sleep 4
+
+
+#MACID=`hciconfig hci0 | grep 'BD Address' | tr -s ' ' | cut -d' ' -f3 | tr -d : | cut -c7-12 | tr a-z A-Z`
+#if [ "xxx$MACID" != "xxx" ]; then
+#	name=SmartAudio-$MACID
+#else
+#	name=SmartAudio
+#fi
+#sed -i "s/\(^Name = \)\(.*\)/\1$name/g" /etc/bluetooth/main.conf
+
+# turn on bluetooth service
+bluetoothd
+
+hciconfig hci0 up
+sleep 1
+
+# open scan and be-scan func
+hciconfig hci0 piscan up
+
+# reponse connection request automatic
+agent --adapter hci0 0000 &
+sleep 2
+
+hciconfig hci0 name "BlueZ"
+hciconfig hci0 reset
+#ofonod -n '*' &
+#bt_audio > log
+

@@ -1,0 +1,19 @@
+/**
+ * @brief
+ * Motion can capture moving pictures in real time. When the picture in
+ * front of the camera has changed, it can save photo one was after changed.
+ * File motion.conf contains configuration information, more please refer to
+ * the motion official instructions.
+ * motion and motion.conf have created in the directory /testsuit/motion/
+ *
+ * Operation method: ./motion motion.conf
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += motion
+ *
+ * @author Ingenic
+ *
+ * @version 3.1.12
+ */
+Motion Description;

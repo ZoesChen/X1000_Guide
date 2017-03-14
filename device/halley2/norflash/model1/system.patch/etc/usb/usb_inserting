@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [ ! -d /mnt/sda ];then
+	mkdir /mnt/sda
+fi
+
+mount -t vfat /dev/sda1 /mnt/sda

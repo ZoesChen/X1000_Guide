@@ -1,0 +1,9 @@
+#!/bin/bash
+
+export SDK_ROOT=`pwd`
+export SDK_BUILD=sdk
+export DEVICE_COMPILER_PREFIX=$SDK_ROOT/prebuilts/toolchains/mips-gcc472-glibc216/bin/mips-linux-gnu
+
+export SDK_BUILD_MODULE=$1
+
+make all -B

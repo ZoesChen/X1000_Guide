@@ -1,0 +1,18 @@
+fisrt run "Xorg &"
+
+use help for information
+example:mplayer --help
+		mplayer -vo help
+		mplayer -ao for audio help
+
+
+hardware decode:
+mplayer "video_name" -vo vaapi -ao alsa
+
+soft decode:
+mplayer "video_name" -ao alsa
+but the soft decode is slower than the hardware decode
+
+"-ao alsa" is for mplayer use the ALSE to play the voice
+
+then you can see a movie,enjoy yourself!

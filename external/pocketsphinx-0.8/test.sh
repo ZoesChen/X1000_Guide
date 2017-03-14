@@ -1,0 +1,10 @@
+#./configure --prefix=/home1/jfli/source_project/Manhattan/external/pocketsphinx-0.8/.install --host=mips AR=mips-linux-gnu-ar CC=mips-linux-gnu-gcc CXX=mips-linux-gnu-g++ CPP=mips-linux-gnu-cpp --enable-static=no --without-python --with-sysroot=/home1/jfli/systemroot CFLAGS="--sysroot=/home1/jfli/systemroot -I/home1/jfli/source_project/Manhattan/external/pocketsphinx-0.8/.install/include" LDFLAGS="-L/home1/jfli/source_project/Manhattan/external/pocketsphinx-0.8/.install/lib"
+
+./autogen.sh --prefix=/home1/jfli/source_project/Manhattan/external/pocketsphinx-0.8/.install --host=mips-linux-gnu --enable-static=no --without-python --with-sphinxbase=/home1/jfli/source_project/Manhattan/external/sphinxbase-0.8 --with-sysroot=/home1/jfli/systemroot CFLAGS="--sysroot=/home1/jfli/systemroot  -I/home1/jfli/source_project/Manhattan/external/sphinxbase-0.8/.install/include/sphinxbase"
+LDFLAGS="-L/home1/jfli/source_project/Manhattan/external/sphinxbase-0.8/.install/include/sphinxbase/lib"
+
+#./configure --prefix=/home1/jfli/source_project/Manhattan/external/pocketsphinx-0.8/.install --host=mips AR=mips-linux-gnu-ar CC=mips-     linux-gnu-gcc CXX=mips-linux-gnu-g++ CPP=mips-linux-gnu-cpp --enable-static=no --without-python --with-sphinxbase=/home1/jfli/source_project/Manhattan/external/pocketsphinx-0.8/../sphinxbase-0.8 --with-sysroot=/home1/jfli/systemroot CFLAGS=--sysroot=/home1/jfli/systemroot -I/home1/jfli/source_project/Manhattan/external/pocketsphinx-0.8/../sphinxbase-0.8/.install/include LDFLAGS=-L/home1/jfli/source_project/Manhattan/external/pocketsphinx-0.8/../sphinxbase-0.8/.install/lib
+
+#./configure --prefix=/home1/jfli/source_project/Manhattan/external/pocketsphinx-0.8/.install --host=mips-linux-gnu --enable-               static=no --without-python --with-sphinxbase=/home1/jfli/source_project/Manhattan/external/sphinxbase-0.8 --with-sysroot=/home1/jfli/          systemroot CFLAGS=--sysroot=/home1/jfli/systemroot  -I/home1/jfli/source_project/Manhattan/external/sphinxbase-0.8/.install/include/           sphinxbase
+
+

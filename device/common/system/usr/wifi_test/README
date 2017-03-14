@@ -1,0 +1,18 @@
+
+1. Scanning wi-fi hotspots
+	$ wifi_scan
+
+2. Connect the wifi
+		$ wifi_start -n ssid -p password
+	Detail:
+		$ wifi_start -h
+		Usage: wifi_start -n SSID -p password
+		Help:
+		  -n SSID
+		  -p password
+		  -h help
+	Example:
+		$ wifi_start -n 123 -p 12345678
+
+3. Stop the wifi
+	$ wifi_stop

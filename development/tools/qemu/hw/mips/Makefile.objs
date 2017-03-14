@@ -1,0 +1,10 @@
+ifneq ($(CONFIG_JZ_CPU), y)
+obj-y += mips_r4k.o mips_malta.o mips_mipssim.o
+obj-y += gt64xxx_pci.o
+endif
+obj-y += addr.o cputimer.o mips_int.o
+obj-$(CONFIG_JAZZ) += mips_jazz.o
+obj-$(CONFIG_FULONG) += mips_fulong2e.o
+obj-$(CONFIG_PHOENIX) += mips_phoenix.o
+obj-$(CONFIG_PERSEUS) += mips_perseus.o
+obj-$(CONFIG_MIPS_CPS) += cps.o

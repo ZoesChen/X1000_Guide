@@ -1,0 +1,17 @@
+/**
+ * @brief
+ * Libuart is used to provide API to operate uart.
+ * libuart.so have created in the directory /usr/lib/
+ *
+ * Operation method:
+ * Refers to packages/example/Sample/uart
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += libuart
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Libuart Description;

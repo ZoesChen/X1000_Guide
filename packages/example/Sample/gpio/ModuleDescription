@@ -1,0 +1,17 @@
+/**
+ * @brief
+ * gpio_sample is used to tests gpio, and show developer the method
+ * how to use libgpio.
+ * gpio_sample have created in the directory /testsuit/gpio_sample/
+ *
+ * Operation method: ./gpio_sample
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += gpio_sample
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Gpio_sample Description;

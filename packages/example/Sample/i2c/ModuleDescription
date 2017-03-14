@@ -1,0 +1,17 @@
+/**
+ * @brief
+ * i2c_sample is used to tests i2c, and show developer the method
+ * how to use libi2c.
+ * i2c_sample have created in the directory /testsuit/i2c_sample/
+ *
+ * Operation method: ./i2c_sample
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += i2c_sample
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+I2c_sample Description;

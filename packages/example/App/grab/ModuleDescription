@@ -1,0 +1,17 @@
+/**
+ * @brief
+ * Grab is a usb camera module, just like cimutils.
+ * It can be used to take pictures and video.
+ * grab have created in the directory /usr/bin/
+ *
+ * Operation method: grab
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += grab
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Grab Description;

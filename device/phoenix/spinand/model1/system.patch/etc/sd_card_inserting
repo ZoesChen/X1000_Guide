@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [ ! -d /mnt/sd ];then
+	mkdir /mnt/sd
+fi
+
+mount -t vfat /dev/mmcblk0p1 /mnt/sd

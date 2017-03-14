@@ -1,0 +1,11 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libturbojpeg
+Description: Loads and saves jpeg
+Version: @VERSION@
+Libs: -L${libdir} -lturbojpeg
+Libs.private: -lz -lm 
+Cflags: -I${includedir} 

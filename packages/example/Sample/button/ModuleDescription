@@ -1,0 +1,19 @@
+/**
+ * @brief
+ * Button module is used to operate keyboard.
+ * Location of keyboard driver in kernel: /drivers/input/keyboard/gpio_key.c
+ *
+ * ButtonDemo.sh have created in the directory /testsuit/ButtonDemo
+ *
+ * Operation method:
+ *    ./ButtonDemo.sh
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += button
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Button Description;

@@ -1,0 +1,42 @@
+jz-sfcnand update
+
+
+UPDATE_UBOOT:
+
+    When you want to update the kernel uboot in jz-sfcnand you should check.
+    When you update u-boot-with-spl.bin from burner after version of "1.0.0"
+    and the bin has been changed by burner with making from u-boot source code.
+    so if you want update uboot you should our tools named "uboot-update".
+    if you upate u-boot-with-spl.bin using burner before version "1.0.0"
+    you can not core this way.
+    you should only care the path of your uboot that make from u-boot source code.
+
+	eg:
+
+	#uboot-update /tmp/u-boot-with-spl.bin
+
+
+    This tool will change u-boot-with-spl.bin for writing nand information for boot,
+    and use flash_erase and nand_write to update uboot,you don't care the detail.
+
+    If you upate u-boot-with-spl.bin using burner before version "1.0.0"
+    you can not core this way.And you can update consult the way of UPDATE KERNEL.
+    But you alse can use this way send uboot's path to "uboot-update".
+    And this time the "uboot-update" do not change the u-boot-with-spl.bin,
+    and it also write u-boot-with-spl.bin to nand.
+
+
+UPDATE KERNEL:
+
+	If you want update kernel.for example your kernel is in mtd1.you can use cat /proc/mtd
+
+	#cat /proc/mtd
+	mtd0: 00100000 00020000 "uboot"
+	mtd1: 00800000 00020000 "kernel"
+	mtd2: 03100000 00020000 "rootfs"
+	mtd3: 03f00000 00020000 "data"
+
+	You can check that the kernel is in mtd1.and if your kernel ls in the /tmp/uImage so you can:
+	#flash_erase /dev/mtd1  0 0
+	#nandwrite /dev/mtd1 /tmp/uImage -p -N
+

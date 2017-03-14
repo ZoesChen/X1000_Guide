@@ -1,0 +1,20 @@
+/**
+ * @brief
+ * Watchdogd is used to operate watch dog.
+ * watchdogd have created in the directory /sbin/
+ * watchdogd.sh have created in the directory /etc/init.d/
+ *
+ * Operation method:
+ * Automatic.
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += watchdogd
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += watchdogd_sh
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Watchdogd Description;

@@ -1,0 +1,5 @@
+./grab --help
+./grab_tar -w 640 -h 480 -c 1 -y //传输和压缩时间测试
+./grab_no_tar -w 640 -h 480 -c 1 -y//传输时间测试
+
+

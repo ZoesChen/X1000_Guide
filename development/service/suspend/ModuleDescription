@@ -1,0 +1,17 @@
+/**
+ * @brief
+ * Libsuspend is used to provide API to operate suspend and wake up.
+ * libsuspend.so have created in the directory /usr/lib/
+ *
+ * Operation method:
+ * Include libsuspend.so, refers to autosuspend.h.
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += libsuspend
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Libsuspend Description;

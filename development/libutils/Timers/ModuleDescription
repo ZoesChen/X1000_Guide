@@ -1,0 +1,24 @@
+/**
+ * @brief
+ * Libtimer is used to provide API to get system time .
+ * Timer is used to test libtimer.so, and get system time.
+ *
+ * libtimer.so have created in the directory /usr/lib/
+ * timer have created in the directory /usr/bin/
+ *
+ * Operation method:
+ * Refers to development/libutils/timer/test
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += libtimer
+ *
+ * Add libtimer.so test app in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += timer
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Libtimer Description;

@@ -1,0 +1,55 @@
+#!/bin/sh
+
+
+# Start all init scripts in /etc/init.d
+# executing them in numerical order.
+#
+
+# etc region recovery
+#@devnum: mtd devices number
+#@blockmajor: block Main equipment number
+#@blockminor: block Secondary equipment number
+#@charmajor: char Main equipment number
+#@charminor: char Secondary equipment number
+#@regionsize: jiffs2 region size
+
+
+devnum=$1
+blockmajor=$2
+blockminor=$3
+charmajor=$4
+charminor=$5
+regionsize=$6
+
+/bin/mknod -m 660 /dev/mtdblock$devnum b $blockmajor $blockminor
+/bin/mknod -m 660 /dev/mtd$devnum c $charmajor $charminor
+
+/bin/mount -t jffs2 /dev/mtdblock$devnum /tmp
+if [ $? -ne 0 ]
+then
+/usr/sbin/flash_erase -j /dev/mtd$devnum 0 $regionsize
+/bin/mount -t jffs2 /dev/mtdblock$devnum /tmp
+/bin/cp -rf /etc/* /tmp/
+/bin/echo 0 > /tmp/recovery
+else
+recovery=`cat /tmp/recovery`
+if [ $? -ne 0 ]
+then
+/bin/umount /tmp
+/usr/sbin/flash_erase -j /dev/mtd$devnum 0 $regionsize
+/bin/mount -t jffs2 /dev/mtdblock$devnum /tmp
+/bin/cp -rf /etc/* /tmp/
+/bin/touch /tmp/recovery
+/bin/echo 0 > /tmp/recovery
+elif [ $recovery -ne 0 ]
+then
+/bin/umount /tmp
+/usr/sbin/flash_erase -j /dev/mtd$devnum 0 $regionsize
+/bin/mount -t jffs2 /dev/mtdblock$devnum /tmp
+/bin/cp -rf /etc/* /tmp/
+/bin/echo 0 > /tmp/recovery
+fi
+fi
+
+/bin/umount /tmp
+/bin/mount -t jffs2 /dev/mtdblock$devnum /etc

@@ -1,0 +1,17 @@
+/**
+ * @brief
+ * Minigui_demo module is used to test minigui.
+ * minigui_demo have created in the directory /testsuit/minigui_demo
+ *
+ * Operation method:
+ *    ./minigui_demo
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += minigui_demo
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Minigui_demo Description;

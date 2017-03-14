@@ -1,0 +1,46 @@
+/**
+ * @brief
+ * How to get degree:
+ *
+ *    Register a callback function to get degree of the speaker
+ *                                      See cloud_sem.c
+ *
+ * aiengine-4mic or aiengine-1mic have created in the directory /testsuit/
+ *
+ * Operation method:
+ *    ./aiengine-1mic or
+ *    ./aiengine-4mic
+ *
+ * Status Diagram:
+ *
+ *    while(1)
+ *
+ *    {
+ *
+ *    		Wait for Wakeup
+ *
+ *    		Semantic Identify
+ *
+ *    		Speech Synthesis
+ *
+ *    }
+ *
+ * Add this module in the project:
+ *
+ * For 4 mic-->
+ *
+ * Modify Build.mk use_ula = 1
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += aiengine-4mic
+ *
+ * For 1 mic-->
+ *
+ * Modify Build.mk use_ula = 0
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += aiengine-1mic
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Speech Description;

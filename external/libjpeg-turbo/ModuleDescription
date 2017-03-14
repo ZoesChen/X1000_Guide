@@ -1,0 +1,16 @@
+/**
+ * @brief
+ * Libjpeg-turbo. More refers to libjpeg-turbo official description.
+ *
+ * Operation method:
+ * Refers to packages/example/App/cimutils
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += libjpeg
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Libjpeg-turbo Description;

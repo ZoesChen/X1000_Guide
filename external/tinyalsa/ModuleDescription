@@ -1,0 +1,16 @@
+/**
+ * @brief
+ * TinyALSA. More refers to TinyALSA official description.
+ *
+ * Operation method:
+ * Refers to packages/example/Sample/speech_tinyalsa
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += libtinyalsa
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Libtinyalsa Description;

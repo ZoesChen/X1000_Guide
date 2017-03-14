@@ -1,0 +1,87 @@
+#!/bin/sh
+
+btcfg="/etc/bluetooth.cfg"
+
+kill_pid()
+{
+    ps | grep "brcm_patchram_plus" | awk '{print $1}' | {
+	while read line; do
+	    kill -9 $line
+	done
+    }
+}
+creat_btcfg()
+{
+    kill_pid
+    if [ $1 -eq 0 ]
+    then
+	    bt_enable_a0 &> bt_tmp &
+    else
+	bt_enable_a1 &> bt_tmp &
+    fi
+
+    sleep 5
+    grep "Broadcom firmware initialized" bt_tmp > /dev/null
+    if [ $? -eq 0 ]
+    then
+	echo $1 > $btcfg
+	rm bt_tmp
+	return 0
+    fi
+    rm bt_tmp
+    return 1
+}
+main() 
+{
+    kill_pid
+    version=`cat $btcfg`
+    if [  -f "$btcfg" ]; then
+	if [ $version -eq 0 ]
+	then
+	    bt_enable_a0
+	else
+	    bt_enable_a1
+	fi
+	exit 0
+    fi
+
+    creat_btcfg 0
+    if [ $? -eq 0 ]
+    then
+	echo "current BT version is 0.0"
+    version=`cat $btcfg`
+	if [ $version -eq 0 ]
+	then
+	    bt_enable_a0
+	    exit 0
+        fi
+	if [ $version -eq 1 ]
+        then
+	    bt_enable_a1
+	    exit 0
+	fi
+
+    fi
+
+    creat_btcfg 1
+    if [ $? -eq 0 ]
+    then
+	echo "current BT version is 1.0"
+    version=`cat $btcfg`
+	if [ $version -eq 0 ]
+	then
+	    bt_enable_a0
+	    exit 0
+	fi
+        if [ $version -eq 1 ]
+        then
+	    bt_enable_a1
+	    exit 0
+	fi
+
+	exit 0
+    fi
+    echo "current BT not support!!!!!!!!!!"
+}
+
+main

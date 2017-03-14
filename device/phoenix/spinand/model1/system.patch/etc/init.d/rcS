@@ -1,0 +1,53 @@
+#!/bin/sh
+
+
+# Start all init scripts in /etc/init.d
+# executing them in numerical order.
+#
+
+/bin/mount -t proc proc /proc
+/bin/mount -o remount,rw / # REMOUNT_ROOTFS_RW
+/bin/mount -a
+/bin/mkdir  /dev/pts
+/bin/mount -t devpts devpts /dev/pts
+/bin/mkdir  /dev/shm
+/bin/mount -t tmpfs tmpfs /dev/shm
+/bin/hostname -F /etc/hostname
+
+
+for i in /etc/init.d/S??* ;do
+
+     # Ignore dangling symlinks (if any).
+     [ ! -f "$i" ] && continue
+
+     case "$i" in
+	*.sh)
+	    # Source shell script for speed.
+	    (
+		trap - INT QUIT TSTP
+		set start
+		. $i
+	    )
+	    ;;
+	*)
+	    # No sh extension, so fork subprocess.
+	    $i start
+	    ;;
+    esac
+done
+
+ubi1_0="/dev/ubi1_0"
+data="/data"
+
+if [ ! -c "$ubi1_0" ]
+then
+	/usr/sbin/ubimkvol /dev/ubi1 -m -N data_vol
+fi
+
+if [ ! -d "$data" ]
+then
+	/bin/mkdir "$data"
+fi
+
+/bin/mount -t ubifs ubi1_0 /data
+

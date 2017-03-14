@@ -1,0 +1,17 @@
+--------------------------------------------------
+
+	Ingenic Camera Module Utils
+
+--------------------------------------------------
+
+1. Feature
+ i> save as picture formats:
+	BMP - Windows Bitmap
+	JPEG - Joint Photographic Experts Group
+	Raw - CIM RxFiFo Data
+ ii> V4L2-compatible codes
+ iii> FOURCC-compatible pixel formats
+ iv> preview on LCD
+ v> display raw & picture file on LCD
+
+2. Other

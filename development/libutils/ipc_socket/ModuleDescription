@@ -1,0 +1,17 @@
+/**
+ * @brief
+ * Libipc_socket is used to provide API to operate socket communication.
+ * libipc_socket.so have created in the directory /usr/lib/
+ *
+ * Operation method:
+ * Refers to development/libutils/ipc_socket/unittest
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += libipc_socket
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Libipc_socket Description;

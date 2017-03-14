@@ -1,0 +1,17 @@
+/**
+ * @brief
+ * spi_sample is used to tests spi, and show developer the method
+ * how to use libspi.
+ * spi_sample have created in the directory /testsuit/spi_sample/
+ *
+ * Operation method: ./spi_sample
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += spi_sample
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Spi_sample Description;

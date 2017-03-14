@@ -1,0 +1,20 @@
+/**
+ * @brief
+ * RuntestScript module is used to test other modules, refers to Build.mk other test demo's LOCAL_MODULE.
+ *
+ * runtest.sh and other modules test file have created in the directory /testsuit/
+ *
+ * Operation method:
+ *    ./runtest.sh
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += RuntestScript
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += <Other ModuleDemo's LOCAL_MODULE>
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+RuntestScript Description;

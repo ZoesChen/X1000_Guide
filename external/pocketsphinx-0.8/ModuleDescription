@@ -1,0 +1,34 @@
+/**
+ * @brief
+ *
+ * This is PocketSphinx, one of Carnegie Mellon University's open source large vocabulary, speaker-independent continuous speech recognition engine. Please see the LICENSE file for terms of use.
+ * This is also an early release of a research system.  We know the APIs and function names are likely to change, and that several tools need to be made available to make this all complete.  With your help and contributions, this can progress in response to the needs and patches provided.
+ * This module depends on Sphinxbase Module.
+ *
+ * ##  Operation method :
+ *  ### Method for direct use:
+ *    ###  #en_us
+ *     ..install/bin/pocketsphinx_continuous \\ <br>
+ *     -hmm .install/share/pocketsphinx/model/en-us/en-us \\ <br>
+ *     -lm  .install/share/pocketsphinx/model/en-us/en-us.lm.bin \\ <br>
+ *     -dict .install/share/pocketsphinx/model/en-us/cmudict-en-us.dict \\ <br>
+ *     -inmic yes
+ *
+ *    ###  #zh_cn
+ *     ..install/bin/pocketsphinx_continuous \\ <br>
+ *     -hmm /sdcard/pocketsphinx/share/pocketsphinx/model/zh-cn/zh_broadcastnews_ptm256_8000 \\ <br>
+ *     -lm /sdcard/pocketsphinx/share/pocketsphinx/model/TAR2347_UTF8/2347.lm \\ <br>
+ *     -dict /sdcard/pocketsphinx/share/pocketsphinx/model/TAR2347_UTF8/2347.dic \\ <br>
+ *     -inmic yes
+ *
+ *  ## Using method in Manhattan project
+ *		please refers to package/exaple/APP/voice_control
+ *
+ *  ## Add this module in the project:
+ *   device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += pocketsphinx-lib
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Pocketsphinx Description;

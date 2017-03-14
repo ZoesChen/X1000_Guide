@@ -1,0 +1,16 @@
+/**
+ * @brief
+ * MiniGUI. More refers to MiniGUI official description.
+ *
+ * Operation method:
+ * Refers to packages/example/Sample/minigui
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += minigui_ths minigui_resource
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+MiniGUI Description;

@@ -1,0 +1,17 @@
+/**
+ * @brief
+ * Libprocesscallstack is used to provide API to operate call stack.
+ * libprocesscallstack.so have created in the directory /usr/lib/
+ *
+ * Operation method:
+ * Refers to development/libutils/Callstack/test
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += libprocesscallstack
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Libprocesscallstack Description;

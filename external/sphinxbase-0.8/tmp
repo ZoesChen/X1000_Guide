@@ -1,0 +1,1 @@
+./configure --prefix= --host=mips-linux-gnu AR=mips-linux-gnu-ar CC=mips-linux-gnu-gcc CXX=mips-linux-gnu-g++ CPP=mips-linux-gnu-cpp --enable-static=no --without-python --with-sysroot=/home1/jfli/systemroot CFLAGS=--sysroot=/home1/jfli/systemroot LDFLAGS=-L/home1/jfli/source_project/Manhattan/external/sphinxbase-0.8/.install/lib -lsndfile

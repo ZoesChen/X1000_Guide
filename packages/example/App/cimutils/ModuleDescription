@@ -1,0 +1,31 @@
+/**
+ * @brief
+ * Cimutils used to take pictures and video.
+ * File CameraDemo.sh have created in the directory /testsuit/CameraDemo/
+ *
+ * Feature:
+ *
+ * i> save as picture formats:
+ * BMP - Windows Bitmap
+ * JPEG - Joint Photographic Experts Group
+ * Raw - CIM RxFiFo Data
+ *
+ * ii> V4L2-compatible codes
+ *
+ * iii> FOURCC-compatible pixel formats
+ *
+ * iv> preview on LCD
+ *
+ * v> display raw & picture file on LCD
+ *
+ * Operation method: ./CameraDemo.sh
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += cimutils
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Cimutils Description;

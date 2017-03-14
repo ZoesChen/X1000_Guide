@@ -1,0 +1,17 @@
+/**
+ * @brief
+ * Libspi is used to provide API to operate spi.
+ * libspi.so have created in the directory /usr/lib/
+ *
+ * Operation method:
+ * Refers to packages/example/Sample/spi
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += libspi
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Libspi Description;

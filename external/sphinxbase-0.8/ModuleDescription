@@ -1,0 +1,13 @@
+/**
+ * @brief
+ *
+ *  This package contains the basic libraries shared by the CMU Sphinx trainer and all the Sphinx decoders (Sphinx-II, Sphinx-III, and PocketSphinx), as well as some common utilities for manipulating acoustic feature and audio files.
+ *
+ *  Operation method :
+ * sphinxbase is used by pocketsphinx module.
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Sphinxbase Description;

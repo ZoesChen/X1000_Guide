@@ -1,0 +1,17 @@
+/**
+ * @brief
+ * uart_sample is used to tests uart, and show developer the method
+ * how to use libuart.
+ * uart_sample have created in the directory /testsuit/uart_sample/
+ *
+ * Operation method: ./uart_sample
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += uart_sample
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Uart_sample Description;

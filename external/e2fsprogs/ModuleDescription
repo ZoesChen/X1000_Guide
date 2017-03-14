@@ -1,0 +1,17 @@
+/**
+ * @brief
+ * e2fsprogs. More refers to e2fsprogs official description.
+ * e2fsck, tune2fs and genext2fs.sh have created in out/host/tools
+ *
+ * Operation method:
+ * Refers to e2fsprogs official description and help
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += e2fsprogs
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+e2fsprogs Description;

@@ -1,0 +1,33 @@
+Source: libjpeg-turbo
+Maintainer: YoungHun Kim <yh8004.kim@samsung.com>, JongHyuk Choi <jhchoi.choi@samsung.com>
+Section: graphics
+Priority: optional
+Build-Depends: debhelper (>= 5), autotools-dev
+Standards-Version: 3.8.2
+
+Package: libjpeg-turbo
+Architecture: any
+Section: libs
+Description: libjpeg-turbo contains a wrapper library (TurboJPEG/OSS) that emulates the TurboJPEG API using libjpeg-turbo
+ The libjpeg-turbo shared libraries can be used as drop-in replacements for libjpeg on most systems
+Depends: ${shlibs:Depends}
+
+Package: libjpeg-turbo-dev
+Architecture: any
+Section: libdevel
+Description: Developement files for libjpeg-turbo contains a wrapper library (TurboJPEG/OSS) that emulates the TurboJPEG API using libjpeg-turbo
+ The libjpeg-turbo shared libraries can be used as drop-in replacements for libjpeg on most systems
+Depends: libjpeg-turbo (=${binary:Version}), libc6-dev
+Conflicts: libjpeg62-dev
+Replaces: libjpeg62-dev
+
+Package: libjpeg-turbo-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Description: Developement files for the libjpeg-turbo contains a wrapper library (TurboJPEG/OSS) that emulates the TurboJPEG API using libjpeg-turbo 
+ The libjpeg-turbo shared libraries can be used as drop-in replacements for libjpeg on most systems
+Provides: libjpeg-turbo-dbg
+Depends: libjpeg-turbo (=${binary:Version})
+Conflicts: libjpeg62-dbg
+Replaces: libjpeg62-dbg

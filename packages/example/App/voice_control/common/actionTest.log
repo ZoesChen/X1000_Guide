@@ -1,0 +1,119 @@
+lgwang@lqchen-0B:~/SmartVoiceTrigger/build/connect.3.8/common$ ./actionTest 
+58 main
+61 main
+64 main
+16 ActionBase
+18 ActionBase
+24 ActionBase
+12 ActionRegister
+15 ActionRegister
+17 ActionRegister
+19 ActionRegister
+21 ActionRegister
+new Action: 0x15d9040
+144 makeJsonString
+146 makeJsonString
+148 makeJsonString
+151 makeJsonString
+--------------------------------------------------------------------------------
+{
+	"action_type":	"register",
+	"client_header":	{
+		"client_name":	"air_conditioner",
+		"client_id":	""
+	},
+	"action":	{
+}
+}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+{
+	"action_type":	"register",
+	"client_header":	{
+		"client_name":	"air_conditioner",
+		"client_id":	""
+	},
+	"action":	{
+}
+}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+action: register
+--------------------------------------------------------------------------------
+ActionParser::getActionType()= register
+ActionParser::getClientName()= air_conditioner
+ActionParser::getClientID()= 
+ActionParser::getOperateItemNum()= 0
+16 ActionBase
+18 ActionBase
+24 ActionBase
+new Action: 0x15d9920
+144 makeJsonString
+146 makeJsonString
+148 makeJsonString
+151 makeJsonString
+--------------------------------------------------------------------------------
+{
+	"action_type":	"register_ack",
+	"client_header":	{
+		"client_name":	"air_conditioner",
+		"client_id":	"client_id_generate_002"
+	},
+	"action":	{
+}
+}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+{
+	"action_type":	"register_ack",
+	"client_header":	{
+		"client_name":	"air_conditioner",
+		"client_id":	"client_id_generate_002"
+	},
+	"action":	{
+}
+}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+action: register_ack
+--------------------------------------------------------------------------------
+ActionParser::getActionType()= register_ack
+ActionParser::getClientName()= air_conditioner
+ActionParser::getClientID()= client_id_generate_002
+ActionParser::getOperateItemNum()= 0
+16 ActionBase
+18 ActionBase
+24 ActionBase
+new Action: 0x15da150
+144 makeJsonString
+146 makeJsonString
+148 makeJsonString
+151 makeJsonString
+--------------------------------------------------------------------------------
+{
+	"action_type":	"ack_ok",
+	"client_header":	{
+},
+	"action":	{
+		"ack":	"ok"
+	}
+}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+{
+	"action_type":	"ack_ok",
+	"client_header":	{
+},
+	"action":	{
+		"ack":	"ok"
+	}
+}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+action: ack_ok
+--------------------------------------------------------------------------------
+ActionParser::getActionType()= ack_ok
+ActionParser::getClientName()= (null)
+ActionParser::getClientID()= (null)
+ActionParser::getOperateItemNum()= 1
+lgwang@lqchen-0B:~/SmartVoiceTrigger/build/connect.3.8/common$ 

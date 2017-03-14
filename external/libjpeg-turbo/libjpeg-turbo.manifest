@@ -1,0 +1,12 @@
+<manifest>
+        <define>
+                <domain name="libjpeg-turbo"/>
+        </define>
+        <request>
+                <domain name="_" />
+        </request>
+        <assign>
+                <filesystem path="/usr/bin/cjpeg" label="libjpeg-turbo" exec_label="libjpeg-turbo" />
+                <filesystem path="/usr/bin/djpeg" label="libjpeg-turbo" exec_label="libjpeg-turbo" />
+        </assign>
+</manifest>

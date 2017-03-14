@@ -1,0 +1,31 @@
+/**
+ * @brief
+ * Libpthread_demo is used to provide API to operate thread.
+ * thread_c_demo is a c file demo of using libptread_demo.so.
+ * thread_c++_demo is a c++ file demo of using libptread_demo.so.
+ *
+ * libpthread_demo.so have created in the directory /usr/lib/
+ * thread_c_demo have created in the directory /testsuit/
+ * thread_c++_demo have created in the directory /testsuit/
+ *
+ * Operation method:
+ * Refers to development/libutils/pthread_demo/thread_c_demo.c
+ * development/libutils/pthread_demo/thread_c++_demo.c
+ *
+ * Add this module in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += libpthread_demo
+ *
+ * Add thread_c_demo in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += thread_c_demo
+ *
+ * Add thread_c++_demo in the project:
+ *
+ * device/\<board\>/\<board\>_base.mk:PRODUCT_MODULES += thread_c++_demo
+ *
+ * @author Ingenic
+ *
+ * @version 1.0.0
+ */
+Libpthread_demo Description;

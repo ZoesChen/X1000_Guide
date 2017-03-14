@@ -1,0 +1,10 @@
+libpthread_demo.a is c++ class library;
+
+/***************************************************/
+c demo compile:
+c call to c++ :
+mips-linux-gnu-gcc -I ./include thread_c_demo.c -lpthread_demo -lstdc++ -lpthread -L ./
+
+/***************************************************/
+c++ demo compile:
+mips-linux-gnu-g++ -I ./include thread_c++_demo.cpp -lpthread -lpthread_demo -L./ -fpermissive
