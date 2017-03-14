@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include "key.h"
+#include "location.h"
 #include "queue.h"
 #include "play.h"
 
@@ -19,23 +20,28 @@
  * Parameter
  * */
 static pthread_t keyThread;
+static pthread_t locationThread;
 static pthread_t playThread;
 static int readKeyFlag = 0;
+static int readLocationFlag = 0;
 
-//#define DEBUG_X86
+#define DEBUG_X86
 //X86_ESC: stop read
 //X86_ZERO: put music num into queue
 
 static int music_num[4] = {0};
 static int musicNum = -1;
+
+static int location_music_num[5] = {0};
+static int locationMusicNum = -1;
 queue keyQueue;
 queue locationQueue;
 pthread_cond_t playThreadCond;
 pthread_mutex_t playThreadLock;
 
 #ifdef DEBUG_X86
-static int oldKey = -1;
-static int newKey = -1;
+static int oldKey       = -1;
+static int newKey       = -1;
 #endif
 
 /*
@@ -82,17 +88,22 @@ static void StopThread(int sig)
 
 static int Init()
 {
-	int res;
+	int res,ret;
 	res = OpenKeyDev();
 	if(res) {
 		return -1;
 	}
+	ret = OpenMcuDev();
+    if(ret < 0) {
+        return -1;
+    }
 	InitPlay();
 	InitQueue();
 	
 	signal(SIGINT, StopThread);
 	
 	readKeyFlag = 1;
+    readLocationFlag = 1;
 	return 0;
 }
 
@@ -198,6 +209,43 @@ void *KeyThreadHandle(void *arg)
 	return NULL;
 }
 
+void *LocationThreadHandle(void *arg)
+{
+	int location;
+	int musicNumIndex = 0;
+	while(readLocationFlag) {
+		ReadLocationInfo(&location);
+		if (location >= X86_KEY1 && location <= X86_ZERO) {
+			if (musicNumIndex < MAX_MUSIC_INDEX) {
+				if (location == X86_ZERO)
+					location_music_num[musicNumIndex] = 0;
+				else
+					location_music_num[musicNumIndex] =location -1;
+
+				musicNumIndex++;
+			}
+
+			if (musicNumIndex == MAX_MUSIC_INDEX) {
+				int i = 0;
+				
+				locationMusicNum = location_music_num[0]*1000 + location_music_num[1]*100 + location_music_num[2]*10 + location_music_num[3];
+				musicNumIndex = 0;
+				printf("MusicNum = %d\n", locationMusicNum);
+				for(i = 0; i < MAX_MUSIC_INDEX; i++) {
+					music_num[i] = 0;
+				}
+				//Enqueue music num into locationQueue
+				pthread_mutex_lock(&playThreadLock);
+				Push(locationMusicNum, &locationQueue);
+				pthread_cond_signal(&playThreadCond);
+				pthread_mutex_unlock(&playThreadLock);
+			}
+		}
+	}
+	printf("Will return from keyThread\n");
+	return NULL;
+}
+
 int main(int argv, char **argc)
 {
 	printf("Begin......\n");
@@ -206,8 +254,10 @@ int main(int argv, char **argc)
 	}
 
 	pthread_create(&keyThread, NULL, KeyThreadHandle, NULL);
+   	pthread_create(&locationThread, NULL, LocationThreadHandle, NULL);
 	pthread_create(&playThread, NULL, PlayThreadHandle, NULL);
 	pthread_join(keyThread, NULL);
+    pthread_join(locationThread, NULL);
 	return 0;
 }
 

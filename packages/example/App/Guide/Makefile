@@ -1,7 +1,7 @@
 CFLAGS ?= -Wall
 LDFLAGS ?=
 INC = ./include
-OBJECTS = guide.o key.o queue.o play.o
+OBJECTS = guide.o key.o queue.o play.o location.o
 LIB = libtinyalsa.a
 SHLIB = libtinyalsa.so
 CROSS_COMPILE = mips-linux-gnu-
