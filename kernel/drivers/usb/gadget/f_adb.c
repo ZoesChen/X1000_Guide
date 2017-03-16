@@ -409,7 +409,8 @@ static ssize_t adb_write(struct file *fp, const char __user *buf,
 
 static int adb_open(struct inode *ip, struct file *fp)
 {
-	pr_info("adb_open\n");
+	//Delete by Zoe Chen: work around, something call this function all time, too log be printed out
+	//pr_info("adb_open\n");
 	if (!_adb_dev)
 		return -ENODEV;
 

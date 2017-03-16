@@ -78,3 +78,4 @@ obj-$(CONFIG_WAKEUP_MODULE_V14_PIC) += voice_wakeup_v14_PIC/
 obj-$(CONFIG_JZ_DMIC_V13)	+= jz_dmic_v13.o
 obj-$(CONFIG_JZ_DMIC_WAKEUP_V13)	+= jz_wakeup_v13.o
 obj-$(CONFIG_JZ_SCC) += jz_scc.o
+obj-y += Chigoo/
