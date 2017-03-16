@@ -9,6 +9,7 @@ CC := gcc
 STRIP = strip
 
 all: $(SHLIB) guide
+	cp guide ../../../../out/product/halley2/system/bin/
 guide: $(SHLIB) $(OBJECTS)
 	$(CROSS_COMPILE)$(CC) $(LDFLAGS) $(OBJECTS) -lpthread -L. -ltinyalsa -o guide
 	$(CROSS_COMPILE)$(STRIP) $@
