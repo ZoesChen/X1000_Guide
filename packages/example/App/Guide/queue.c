@@ -7,8 +7,8 @@ int IsQueueFree(queue *q)
 	return (q->end == NULL) ? 1 : 0;
 }
 
-int Push(int data, queue *q)  
-{  
+int Push(CMDMSG *data, queue *q)  
+{
     // Construct a new node  
     node *nnode = (node *)malloc(sizeof(node));  
     nnode->data = data;  
@@ -32,13 +32,13 @@ int Push(int data, queue *q)
     return 0;  
 }  
 
-int Pop(queue *q)  
+CMDMSG *Pop(queue *q)  
 {  
     // If the queue is null, return  
     if (q->front == NULL)  
-        return -1;  
+        return NULL;  
   
-    int temp;  
+    CMDMSG *temp;  
   
     if (q->front->next != NULL)  
     {  

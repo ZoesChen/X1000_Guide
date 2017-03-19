@@ -13,8 +13,15 @@
 /*
  * Define
  * */
-#define MAX_MUSIC_INDEX 4 // 4bit num -> 1 music num
-#define PLAYCMD_INIT_STAT -1
+
+//#define DEBUG_X86
+#define DEBUG_ON_DEVBOARD
+
+#define	MAX_MUSIC_INDEX	4	 // 4bit num -> 1 music num
+#define	PLAYCMD_INIT_STAT 	(-1)
+
+#define	SUCCESS		0
+#define	FAIL			(-1)
 
 /*
  * Parameter
@@ -25,25 +32,16 @@ static pthread_t playThread;
 static int readKeyFlag = 0;
 static int readLocationFlag = 0;
 
-//#define DEBUG_X86
-#define DEBUG_ON_DEVBOARD
-//X86_ESC: stop read
-//X86_ZERO: put music num into queue
-
 static int music_num[4] = {0};
 static int musicNum = -1;
 
-static int location_music_num[5] = {0};
+//static int location_music_num[5] = {0};
 static int locationMusicNum = -1;
+
 queue keyQueue;
 queue locationQueue;
 pthread_cond_t playThreadCond;
 pthread_mutex_t playThreadLock;
-
-#ifdef DEBUG_X86
-static int oldKey       = -1;
-static int newKey       = -1;
-#endif
 
 /*
  * Struct & Enum
@@ -56,6 +54,13 @@ enum QueueCondition
 	BOTH_BUSY,
 	INVALID
 };
+
+
+/************************************  Function ************************************/
+
+static void *KeyThreadHandle(void *arg);
+static void *PlayThreadHandle(void *arg);
+static void *LocationThreadHandle(void *arg);
 
 static enum QueueCondition whichQueueFree()
 {
@@ -80,144 +85,176 @@ static void InitQueue()
 	locationQueue.end = NULL;
 }
 
-static void StopThread(int sig)
+#ifdef DEBUG_ON_DEVBOARD
+static void insteadedOkKey(int sig)
 {
-    /* allow the stream to be closed gracefully */
-    signal(sig, SIG_IGN);
-    readKeyFlag = 0;
+	signal(sig, SIG_IGN);
+	readKeyFlag = 0;
+	signal(SIGINT, insteadedOkKey);
 }
+#endif
 
 static int Init()
 {
-	int res,ret;
-	res = OpenKeyDev();
-	if(res) {
-		return -1;
+	if (OpenKeyDev() < 0) {
+		return FAIL;
 	}
-	ret = OpenMcuDev();
-    if(ret < 0) {
-        return -1;
-    }
+
+	if (OpenMcuDev() < 0) {
+		return FAIL;
+	}
+	
 	InitPlay();
 	InitQueue();
-	
-	signal(SIGINT, StopThread);
-	
+
+	pthread_create(&keyThread, NULL, KeyThreadHandle, NULL);
+   	pthread_create(&locationThread, NULL, LocationThreadHandle, NULL);
+	pthread_create(&playThread, NULL, PlayThreadHandle, NULL);
+
+#ifdef DEBUG_ON_DEVBOARD
+//Just for debug, CTRL+C to fill up array music_num, then push into keyqueue
+//if not debug on devboard, will be insteaded by ok key
+	signal(SIGINT, insteadedOkKey);
+
+#endif
+
 	readKeyFlag = 1;
-    readLocationFlag = 1;
+	readLocationFlag = 1;
 	return 0;
 }
 
 void *PlayThreadHandle(void *arg)
 {
-	int playCmd = PLAYCMD_INIT_STAT;
+	CMDMSG *cmdMsg;
+	
 	while(readKeyFlag) {
 		pthread_mutex_lock(&playThreadLock);
 		switch(whichQueueFree()){
 			case BOTH_FREE:
 				printf("BOTH_FREE\n");
 				pthread_cond_wait(&playThreadCond, &playThreadLock);
-				printf("Wake up by cond\n");
+				printf("%s: Wake up by cond\n", __FUNCTION__);
+				pthread_mutex_unlock(&playThreadLock);
+				continue;
 			break;
 			case BOTH_BUSY:
 				printf("BOTH_BUSY\n");
-				playCmd = Pop(&keyQueue);
+				cmdMsg = Pop(&keyQueue);
 			break;
 			case KEYQUEUE_FREE:
 			//keyqueue NULL, locationQueue not NULL
 				printf("KEYQUEUE_FREE\n");
-				playCmd = Pop(&locationQueue);
+				cmdMsg = Pop(&locationQueue);
 			break;
 			case LOCATIONQUEUE_FREE:
 				printf("LOCATIONQUEUE_FREE\n");
-				playCmd = Pop(&keyQueue);
+				cmdMsg = Pop(&keyQueue);
 			break;
 			default:
 			break;
 		}
 		pthread_mutex_unlock(&playThreadLock);
-		if (playCmd != PLAYCMD_INIT_STAT) {
-			//Handle playCmd && reset playCmd
-			printf("PlayThreadHandle: playCmd = %d\n", playCmd);
-			//StartPlay(playCmd);
-			playInterface(playCmd);
-			playCmd = PLAYCMD_INIT_STAT;
+
+		switch (cmdMsg->cmdType) {
+			case MUSIC_CMD:
+				printf("%s: MUSIC CMD\n", __FUNCTION__);
+				musicNum = cmdMsg->cmdValue[3] * 1000 + cmdMsg->cmdValue[2] * 100 + cmdMsg->cmdValue[1] * 10 + cmdMsg->cmdValue[0];
+				printf("%s: musicNum is %d\n", __FUNCTION__, musicNum);
+				playInterface(musicNum);
+				memset(cmdMsg->cmdValue, 0, 4 * sizeof(char));
+			break;
+			case OPTION_CMD:
+				printf("%s: OPTION_CMD\n", __FUNCTION__);
+			break;
+			case NUMBER_CMD:
+				printf("%s: NUMBER_CMD\n", __FUNCTION__);
+			break;
+			case LOCATION_MUSIC_CMD:
+				printf("%s: LOCATION_MUSIC_CMD\n", __FUNCTION__);
+			break;
+			default:
+				break;
 		}
+		
+		//free(cmdMsg);
 	}
 	return NULL;
+}
+
+CMDTYPE JudgeKeyCmd(int *value)
+{
+	int key = *value;
+	CMDTYPE cmdType = INVAILD_CMD;
+	if (key >= A90_GUIDE_KEY1 && key <= A90_GUIDE_KEY0) {
+		cmdType = NUMBER_CMD;
+		if (key == A90_GUIDE_KEY0) {
+			*value = 0;
+		}
+	} else if (key >= A90_GUIDE_KEYCE && key <= A90_GUIDE_KEY_BACK) {
+		cmdType = OPTION_CMD;
+	}
+	return cmdType;
 }
 
 void *KeyThreadHandle(void *arg)
 {
 	int keyCode;
 	int musicNumIndex = 0;
-#ifdef DEBUG_X86
-	int x86StartFlag = 0;
-#endif
+
+	struct cmdMsg *cmdMsg = (struct cmdMsg *)malloc(sizeof(struct cmdMsg));
+	if (cmdMsg == NULL) {
+		printf("%s: Requre memory fail\n", __FUNCTION__);
+		return NULL;
+	} else {
+		memset(cmdMsg, 0, sizeof(CMDMSG));
+	}
+
 	while(readKeyFlag) {
-		ReadKey(&keyCode);
-#ifdef DEBUG_X86
-		if (keyCode == X86_KEY_A) {
-			x86StartFlag = 1;
+		if (ReadKey(&keyCode) < 0) {
+			usleep(10); // avoid readKey always return error cause cpu loading too high
 			continue;
 		}
-		if (x86StartFlag != 1) {
-			continue;
+		cmdMsg->cmdType = JudgeKeyCmd(&keyCode);
+
+		if (NUMBER_CMD == cmdMsg->cmdType) {
+			cmdMsg->keyNum = keyCode;
+			printf("[%s] receive %d key\n", __FUNCTION__, keyCode);
+			//push number cmd msg into keyqueue 
+			pthread_mutex_lock(&playThreadLock);
+			//printf("[%s] After lock\n", __FUNCTION__);
+			Push(cmdMsg, &keyQueue);
+			pthread_cond_signal(&playThreadCond);
+			pthread_mutex_unlock(&playThreadLock);
+			music_num[musicNumIndex++] = keyCode;
+		} else if (OPTION_CMD == cmdMsg->cmdType) {
+			cmdMsg->keyNum = keyCode;
+			//ToDo: implement option cmd;
+			//......
 		}
 
-		oldKey = newKey;
-		newKey = keyCode;
-		if (oldKey == newKey)
-			continue;
+		//wait something finish
+		usleep(10);
 
-		if (keyCode == X86_ESC) {
-			printf("Press esc\n");
-			readKeyFlag = 0;
-			continue;
-		}
-		if (keyCode >= X86_KEY1 && keyCode <= X86_ZERO) {
-			if (musicNumIndex < MAX_MUSIC_INDEX) {
-				if (keyCode == X86_ZERO)
-					music_num[musicNumIndex] = 0;
-				else
-					music_num[musicNumIndex] =keyCode -1;
-
-				musicNumIndex++;
+		if (musicNumIndex >= MAX_MUSIC_INDEX || keyCode == A90_GUIDE_KEYOK) {
+			int i;
+			cmdMsg->cmdType = MUSIC_CMD;
+			for (i = 0; i < musicNumIndex; i++) {
+				cmdMsg->cmdValue[musicNumIndex - i -1] = music_num[i];
 			}
 
-			if (musicNumIndex == MAX_MUSIC_INDEX) {
-				int i = 0;
-				
-				musicNum = music_num[0]*1000 + music_num[1]*100 + music_num[2]*10 + music_num[3];
-				musicNumIndex = 0;
-				printf("MusicNum = %d\n", musicNum);
-				for(i = 0; i < MAX_MUSIC_INDEX; i++) {
-					music_num[i] = 0;
-				}
-				//Enqueue music num into keyQueue
-				pthread_mutex_lock(&playThreadLock);
-				Push(musicNum, &keyQueue);
-				pthread_cond_signal(&playThreadCond);
-				pthread_mutex_unlock(&playThreadLock);
-			}
-		}		
-#endif
-
-#ifdef DEBUG_ON_DEVBOARD
-	//only have two key on devBoard, so this code just for demo
-	if (keyCode >= X86_KEY1 && keyCode <= X86_ZERO) {
-		musicNum = (keyCode == X86_KEY1) ? 1111 : 2222;
-		pthread_mutex_lock(&playThreadLock);
-		Push(musicNum, &keyQueue);
-		pthread_cond_signal(&playThreadCond);
-		pthread_mutex_unlock(&playThreadLock);
+			printf("%s: In MUSIC CMD, music number is %d\n", __FUNCTION__, 
+				cmdMsg->cmdValue[3] * 1000 + 	cmdMsg->cmdValue[2] * 100 +
+				cmdMsg->cmdValue[1] * 10 + cmdMsg->cmdValue[0]);
+			
+			pthread_mutex_lock(&playThreadLock);
+			Push(cmdMsg, &keyQueue);
+			pthread_cond_signal(&playThreadCond);
+			pthread_mutex_unlock(&playThreadLock);
+			//memset(cmdMsg->cmdValue, 0, 4 * sizeof(char));
+			musicNumIndex = 0;
+		}
 	}
-#endif
 
-	}
-#ifdef DEBUG_X86
-	x86StartFlag = 0;
-#endif
 	printf("Will return from keyThread\n");
 	return NULL;
 }
@@ -225,7 +262,6 @@ void *KeyThreadHandle(void *arg)
 void *LocationThreadHandle(void *arg)
 {
 	int location;
-	int musicNumIndex = 0;
 	while(readLocationFlag) {
 		ReadLocationInfo(&location);
 
@@ -234,7 +270,7 @@ void *LocationThreadHandle(void *arg)
 		//just for demo, because this value is fixed to 10 in kernel, and report every 20 s
 			locationMusicNum = 1111;
 			pthread_mutex_lock(&playThreadLock);
-			Push(locationMusicNum, &locationQueue);
+			//Push(locationMusicNum, &locationQueue);
 			pthread_cond_signal(&playThreadCond);
 			pthread_mutex_unlock(&playThreadLock);
 		}
@@ -251,11 +287,9 @@ int main(int argv, char **argc)
 		return -1;
 	}
 
-	pthread_create(&keyThread, NULL, KeyThreadHandle, NULL);
-   	pthread_create(&locationThread, NULL, LocationThreadHandle, NULL);
-	pthread_create(&playThread, NULL, PlayThreadHandle, NULL);
 	pthread_join(keyThread, NULL);
         pthread_join(locationThread, NULL);
+	pthread_join(playThread, NULL);
 	return 0;
 }
 

@@ -5,7 +5,7 @@
 #include <fcntl.h>
 #include <linux/input.h>
 
-#define BUTTON_EVENT "/dev/input/event1"
+#define BUTTON_EVENT "/dev/input/event0"
 int main(int argc,char *argv[])
 {
 	int fd;

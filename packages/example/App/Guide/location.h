@@ -3,7 +3,8 @@
 
 #define MCU_DEV "/dev/mcu_dev"
 int OpenMcuDev();
-int readLocationInfo(int *LocationInfo);
+int ReadLocationInfo(int *LocationInfo);
+
 int CloseMcuDev();
 #endif
 

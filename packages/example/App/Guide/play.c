@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <string.h>
 #include "play.h"
 #define DEBUG
 /*
@@ -26,6 +27,9 @@ static int closeFlag;
 static int musicNumber = -1;
 static pthread_t musicThread;
 
+static char base_path[] = {"/mnt/sd/CHIGOORES/"};
+static enum LANGUAGE language = CHINESE;
+
 static char musicName[32][128] = {
 		"/mnt/sd/back/0.wav",
 		"/mnt/sd/back/1.wav",
@@ -35,7 +39,6 @@ static char musicName[32][128] = {
 /*
  * Function
  * */
-void playInterface(int mNum);
 int StartPlay(int musicNum);
 void InitPlay();
 void StopPlay();
@@ -57,6 +60,7 @@ void playInterface(int mNum)
 	if (playFlag == ENABLEPLAY) {
 		printf("%s: Now is playing\n", __FUNCTION__);
 		pthread_mutex_lock(&musicLock);
+		printf("%s: get music lock\n", __FUNCTION__);
 		playFlag = DISABLEPLAY;
 		pthread_cond_wait(&musicCond, &musicLock);
 		printf("%s: Be wake up\n", __FUNCTION__);
@@ -80,7 +84,7 @@ int StartPlay(int musicNum)
 	char *musicName = NULL;
 	musicName = matchMusic(musicNum);
 	if (musicName == NULL) {
-		printf("Can not match music!\n");
+		printf("%s: Can not match music!\n", __FUNCTION__);
 		return -1;
 	}
 	file = fopen(musicName, "rb");
@@ -141,7 +145,7 @@ void *MusicThreadHandle(void *arg)
 			musicName = matchMusic(musicNumber);
 			if (musicName == NULL) {
 				printf("Can not match music!\n");
-				return -1;
+				return NULL;
 			}
 			
 			file = fopen(musicName, "rb");
@@ -163,26 +167,26 @@ void *MusicThreadHandle(void *arg)
 				do {
 					fread(&chunkHeader, sizeof(struct chunk_header), 1, file);
 					switch (chunkHeader.id) {
-		            case ID_FMT:
-		                fread(&chunkFmt, sizeof(struct chunk_fmt), 1, file);
-		                printf("%s: chunkHeader.sz = %d\n", __FUNCTION__, chunkHeader.sz);
-		                /* If the format header is larger, skip the rest */
-		                if (chunkHeader.sz > sizeof(struct chunk_fmt))
-		                    fseek(file, chunkHeader.sz - sizeof(struct chunk_fmt), SEEK_CUR);
-		                break;
-		            case ID_DATA:
-		                /* Stop looking for chunks */
-		                more_chunks = 0;
-		                break;
-		            default:
-		                /* Unknown chunk, skip bytes */
-		                fseek(file, chunkHeader.sz, SEEK_CUR);
+				            case ID_FMT:
+				                fread(&chunkFmt, sizeof(struct chunk_fmt), 1, file);
+				                printf("%s: chunkHeader.sz = %d\n", __FUNCTION__, chunkHeader.sz);
+				                /* If the format header is larger, skip the rest */
+				                if (chunkHeader.sz > sizeof(struct chunk_fmt))
+				                    fseek(file, chunkHeader.sz - sizeof(struct chunk_fmt), SEEK_CUR);
+				                break;
+				            case ID_DATA:
+				                /* Stop looking for chunks */
+				                more_chunks = 0;
+				                break;
+				            default:
+				            /* Unknown chunk, skip bytes */
+				            fseek(file, chunkHeader.sz, SEEK_CUR);
 					}
 				} while (more_chunks);
+				
 				channels = chunkFmt.num_channels;
 				rate = chunkFmt.sample_rate;
 				bits = chunkFmt.bits_per_sample;
-				
 			}
 
 			play_sample(file, card, device, channels, rate, bits, period_size, period_count);
@@ -216,17 +220,15 @@ void InitPlay()
 char *matchMusic(int musicNum)
 {
 	char *name = (char *)malloc(sizeof(char) * 128);
-	switch(musicNum){
-		case MUSIC_NUM1:
-			memcpy(name, musicName[0], strlen(musicName[0]));
-		break;
-		case MUSIC_NUM2:
-			memcpy(name, musicName[1], strlen(musicName[1]));
-		break;
-		default:
-			return NULL;
-		break;
+	char languagePath[10] = {0};
+	if (language == CHINESE) {
+		strcpy(languagePath,"CN/");
+	} else if (language == ENGLISH) {
+		strcpy(languagePath, "EN/");
 	}
+	sprintf(name,"%s%s%d.wav", base_path, languagePath, musicNum);
+	printf("%s: the music name is %s\n", __FUNCTION__, name);
+
 	return name;
 }
 
@@ -258,10 +260,6 @@ void play_sample(FILE *file, unsigned int card, unsigned int device, unsigned in
     }
 
     pcm = pcm_open(card, device, PCM_OUT, &config);
-    
-#ifdef DEBUG
-	printf("");
-#endif
     
     if (!pcm || !pcm_is_ready(pcm)) {
         fprintf(stderr, "Unable to open PCM device %u (%s)\n",

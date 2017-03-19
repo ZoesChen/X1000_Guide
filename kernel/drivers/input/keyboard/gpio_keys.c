@@ -336,6 +336,7 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
 	} else {
 		input_event(input, type, button->code, !!state);
 	}
+	printk("%s: button code is %d\n", __FUNCTION__, button->code);
 	input_sync(input);
 }
 

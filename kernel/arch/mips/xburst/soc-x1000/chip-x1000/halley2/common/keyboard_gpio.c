@@ -8,7 +8,7 @@ struct gpio_keys_button __attribute__((weak)) board_buttons[] = {
 #ifdef GPIO_SW1_KEY
 	{
 		.gpio		= GPIO_SW1_KEY,
-		.code		= KEY_1,
+		.code		= A90_GUIDE_KEY0,
 		.desc		= "sw1 key",
 		.active_low = 1,
 	},
@@ -16,7 +16,7 @@ struct gpio_keys_button __attribute__((weak)) board_buttons[] = {
 #ifdef GPIO_SW2_KEY
 	{
 		.gpio		= GPIO_SW2_KEY,
-		.code		= KEY_2,
+		.code		= A90_GUIDE_KEY1,
 		.desc		= "sw2 key",
 		.active_low = 1,
 	},

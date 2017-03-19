@@ -1,0 +1,19 @@
+menu "MCU" 
+
+comment"MCU Driver" 
+
+config MCU 
+
+	tristate "MCU_COMMUNICATION" 
+
+	default y
+
+  config MCU_COMM_DEBUG
+	depends on MCU
+	tristate "MCU_COMM_DEBEG"
+	default n
+endmenu
+
+
+
+

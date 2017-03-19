@@ -42,6 +42,12 @@ enum playStatus {
 	DISABLEPLAY
 };
 
+enum LANGUAGE {
+	CHINESE = 0,
+	ENGLISH,
+	INVAILD
+};
+
 /*
  * Parameter
  * */
@@ -56,4 +62,6 @@ enum playStatus playFlag;
 int StartPlay(int musicNum);
 void InitPlay();
 void StopPlay();
+void playInterface(int mNum);
+
 #endif
