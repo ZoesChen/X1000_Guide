@@ -2,6 +2,7 @@
 #define _GUIDE_PLAY_H_
 #include <stdint.h>
 #include <pthread.h>
+#include "key.h"
 
 /*
  * Define
@@ -62,6 +63,6 @@ enum playStatus playFlag;
 int StartPlay(int musicNum);
 void InitPlay();
 void StopPlay();
-void playInterface(int mNum);
+void playInterface(CMDTYPE cmd, int mNum);
 
 #endif

@@ -160,7 +160,7 @@ void *PlayThreadHandle(void *arg)
 				printf("%s: MUSIC CMD\n", __FUNCTION__);
 				musicNum = cmdMsg->cmdValue[3] * 1000 + cmdMsg->cmdValue[2] * 100 + cmdMsg->cmdValue[1] * 10 + cmdMsg->cmdValue[0];
 				printf("%s: musicNum is %d\n", __FUNCTION__, musicNum);
-				playInterface(musicNum);
+				playInterface(cmdMsg->cmdType, musicNum);
 				memset(cmdMsg->cmdValue, 0, 4 * sizeof(char));
 			break;
 			case OPTION_CMD:
@@ -168,6 +168,8 @@ void *PlayThreadHandle(void *arg)
 			break;
 			case NUMBER_CMD:
 				printf("%s: NUMBER_CMD\n", __FUNCTION__);
+				musicNum = cmdMsg->keyNum;
+				playInterface(cmdMsg->cmdType, musicNum);
 			break;
 			case LOCATION_MUSIC_CMD:
 				printf("%s: LOCATION_MUSIC_CMD\n", __FUNCTION__);
@@ -233,7 +235,7 @@ void *KeyThreadHandle(void *arg)
 		}
 
 		//wait something finish
-		usleep(10);
+		sleep(1);
 
 		if (musicNumIndex >= MAX_MUSIC_INDEX || keyCode == A90_GUIDE_KEYOK) {
 			int i;

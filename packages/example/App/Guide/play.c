@@ -25,6 +25,7 @@ static unsigned int is_raw; /* Default wav file */
 static int more_chunks;
 static int closeFlag;
 static int musicNumber = -1;
+static CMDTYPE cmdType = INVAILD_CMD;
 static pthread_t musicThread;
 
 static char base_path[] = {"/mnt/sd/CHIGOORES/"};
@@ -55,7 +56,8 @@ int sample_is_playable(unsigned int card, unsigned int device, unsigned int chan
 static int check_param(struct pcm_params *params, unsigned int param, unsigned int value,
                  char *param_name, char *param_unit);
 
-void playInterface(int mNum)
+void playInterface(CMDTYPE cmd, int mNum)
+
 {
 	if (playFlag == ENABLEPLAY) {
 		printf("%s: Now is playing\n", __FUNCTION__);
@@ -72,6 +74,7 @@ void playInterface(int mNum)
 		printf("%s: Now is stoping\n", __FUNCTION__);
 		pthread_mutex_lock(&musicLock);
 		musicNumber = mNum;
+		cmdType = cmd;
 		playFlag = ENABLEPLAY;
 		pthread_cond_signal(&musicCond);
 		pthread_mutex_unlock(&musicLock);
@@ -221,12 +224,17 @@ char *matchMusic(int musicNum)
 {
 	char *name = (char *)malloc(sizeof(char) * 128);
 	char languagePath[10] = {0};
-	if (language == CHINESE) {
-		strcpy(languagePath,"CN/");
-	} else if (language == ENGLISH) {
-		strcpy(languagePath, "EN/");
+	if (cmdType == MUSIC_CMD) {
+		if (language == CHINESE) {
+			strcpy(languagePath,"CN/");
+		} else if (language == ENGLISH) {
+			strcpy(languagePath, "EN/");
+		}
+		sprintf(name,"%s%s%d.wav", base_path, languagePath, musicNum);
+		printf("%s: the music name is %s\n", __FUNCTION__, name);
+	} else if (cmdType == NUMBER_CMD) {
+		sprintf(name, "%sSYSTEM/%d.wav", base_path, musicNum);
 	}
-	sprintf(name,"%s%s%d.wav", base_path, languagePath, musicNum);
 	printf("%s: the music name is %s\n", __FUNCTION__, name);
 
 	return name;
