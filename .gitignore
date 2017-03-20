@@ -1,5 +1,7 @@
 external/libjpeg-turbo/*
 out/*
 prebuilts/*
+ModuleDescription.html
+docs/ModuleDescription/
 *.o
 
