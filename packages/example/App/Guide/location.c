@@ -24,7 +24,7 @@ int OpenMcuDev()
 	return 0;
 }
 
-int ReadLocationInfo(int *LocationInfo)
+int ReadLocationInfo(unsigned long int *LocationInfo)
 {
    fd_set rds;
    int ret;
@@ -42,7 +42,7 @@ int ReadLocationInfo(int *LocationInfo)
    {
         read(McuFd,LocationInfo,sizeof(int));
    }
-   printf("Read Buf %d\n", *LocationInfo);
+   printf("Read Buf %ld\n", *LocationInfo);
 
    return 0;   
 }

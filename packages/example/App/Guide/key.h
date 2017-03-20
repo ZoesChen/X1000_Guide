@@ -30,6 +30,7 @@ typedef enum cmdType {
 typedef struct cmdMsg {
 	CMDTYPE	cmdType;
 	int			keyNum;
+	unsigned long int		locationNum;
 	char			cmdValue[4];
 }CMDMSG;
 

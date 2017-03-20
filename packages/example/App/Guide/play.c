@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
+#include <dirent.h>
+
 #include "play.h"
 #define DEBUG
 /*
@@ -24,26 +26,21 @@ static unsigned int bits;
 static unsigned int is_raw; /* Default wav file */
 static int more_chunks;
 static int closeFlag;
-static int musicNumber = -1;
+static unsigned long int musicNumber = 0;
 static CMDTYPE cmdType = INVAILD_CMD;
 static pthread_t musicThread;
 
 static char base_path[] = {"/mnt/sd/CHIGOORES/"};
 static enum LANGUAGE language = CHINESE;
 
-static char musicName[32][128] = {
-		"/mnt/sd/back/0.wav",
-		"/mnt/sd/back/1.wav",
-		"/mnt/sd/back/2.wav",
-		"/mnt/sd/back/4.wav"
-};
+//recoder resource file name list
+static char musicFile[256][64] = {0};
 /*
  * Function
  * */
-int StartPlay(int musicNum);
 void InitPlay();
 void StopPlay();
-char *matchMusic(int musicNum);
+char *matchMusic(unsigned long int musicNum);
 
 void play_sample(FILE *file, unsigned int card, unsigned int device, unsigned int channels,
                  unsigned int rate, unsigned int bits, unsigned int period_size,
@@ -56,8 +53,7 @@ int sample_is_playable(unsigned int card, unsigned int device, unsigned int chan
 static int check_param(struct pcm_params *params, unsigned int param, unsigned int value,
                  char *param_name, char *param_unit);
 
-void playInterface(CMDTYPE cmd, int mNum)
-
+void playInterface(CMDTYPE cmd, unsigned long int mNum)
 {
 	if (playFlag == ENABLEPLAY) {
 		printf("%s: Now is playing\n", __FUNCTION__);
@@ -82,60 +78,6 @@ void playInterface(CMDTYPE cmd, int mNum)
 }
 
 
-int StartPlay(int musicNum)
-{
-	char *musicName = NULL;
-	musicName = matchMusic(musicNum);
-	if (musicName == NULL) {
-		printf("%s: Can not match music!\n", __FUNCTION__);
-		return -1;
-	}
-	file = fopen(musicName, "rb");
-	if (file == NULL) {
-		printf("Open %s fail\n", musicName);
-		return -1;
-	}
-
-	if (!is_raw) {
-		fread(&riffWaveHeader, sizeof(struct riff_wave_header), 1, file);
-		if ((riffWaveHeader.riff_id != ID_RIFF) || (riffWaveHeader.wave_id != ID_WAVE)) {
-			fprintf(stderr, "Error: '%s' is not a riff/wave file\n", musicName);
-			fclose(file);
-			return -1;
-		}
-		do {
-			fread(&chunkHeader, sizeof(struct chunk_header), 1, file);
-			switch (chunkHeader.id) {
-            case ID_FMT:
-                fread(&chunkFmt, sizeof(struct chunk_fmt), 1, file);
-                printf("%s: chunkHeader.sz = %d\n", __FUNCTION__, chunkHeader.sz);
-                /* If the format header is larger, skip the rest */
-                if (chunkHeader.sz > sizeof(struct chunk_fmt))
-                    fseek(file, chunkHeader.sz - sizeof(struct chunk_fmt), SEEK_CUR);
-                break;
-            case ID_DATA:
-                /* Stop looking for chunks */
-                more_chunks = 0;
-                break;
-            default:
-                /* Unknown chunk, skip bytes */
-                fseek(file, chunkHeader.sz, SEEK_CUR);
-			}
-		} while (more_chunks);
-		channels = chunkFmt.num_channels;
-		rate = chunkFmt.sample_rate;
-		bits = chunkFmt.bits_per_sample;
-		
-	}
-	printf("%s %d\n", __FUNCTION__, __LINE__);
-	printf("%s: hannels=%d, rate=%d, bits=%d, period_size=%d, period_count=%d\n", 
-		__FUNCTION__, channels, rate, bits, period_size, period_count);
-	play_sample(file, card, device, channels, rate, bits, period_size, period_count);
-	printf("%s %d\n", __FUNCTION__, __LINE__);
-	fclose(file);
-	return 0;
-}
-
 void *MusicThreadHandle(void *arg) 
 {
 	while(1) {
@@ -150,12 +92,15 @@ void *MusicThreadHandle(void *arg)
 				printf("Can not match music!\n");
 				return NULL;
 			}
-			
+
 			file = fopen(musicName, "rb");
 			if (file == NULL) {
 				printf("Open %s fail\n", musicName);
 				playFlag = DISABLEPLAY;
+				free(musicName);
 				continue;
+			} else {
+				free(musicName);
 			}
 
 			if (!is_raw) {
@@ -203,6 +148,28 @@ void *MusicThreadHandle(void *arg)
 	return NULL;
 }
 
+static void readResource()
+{
+	DIR *dir;
+	struct dirent *ptr;
+	char basePath[256] = {0};
+	sprintf(basePath, "%sCN", base_path);
+	printf("open %s\n", basePath);
+	
+	if ((dir = opendir(basePath)) == NULL) {
+		printf("Open dir error...\n");
+		return;
+	}
+
+	while((ptr = readdir(dir)) != NULL) {
+		if (strcmp(ptr->d_name, ".") == 0 || strcmp(ptr->d_name,"..") == 0)
+			continue;
+		if (ptr->d_type == 8) { // file
+			printf("%s\n", ptr->d_name);
+		}
+	}
+	closedir(dir);
+}
 
 void InitPlay()
 {
@@ -217,23 +184,47 @@ void InitPlay()
 	more_chunks = 1;
 	closeFlag = 0;
 	playFlag = DISABLEPLAY;
+	readResource();
 	pthread_create(&musicThread, NULL, MusicThreadHandle, NULL);
 }
 
-char *matchMusic(int musicNum)
+static int findLocationFile(int id, int usrAngle)
+{
+	int angle = 0;
+	return angle;
+}
+
+char *matchMusic(unsigned long int musicNum)
 {
 	char *name = (char *)malloc(sizeof(char) * 128);
 	char languagePath[10] = {0};
+	int id = 0;
+	int usrAngle = 0;
+	int locationAngle = 0;
+	
+	if (language == CHINESE) {
+		strcpy(languagePath,"CN/");
+	} else if (language == ENGLISH) {
+		strcpy(languagePath, "EN/");
+	}
+
 	if (cmdType == MUSIC_CMD) {
-		if (language == CHINESE) {
-			strcpy(languagePath,"CN/");
-		} else if (language == ENGLISH) {
-			strcpy(languagePath, "EN/");
-		}
-		sprintf(name,"%s%s%d.wav", base_path, languagePath, musicNum);
-		printf("%s: the music name is %s\n", __FUNCTION__, name);
+
+		sprintf(name,"%s%sId_%ld.wav", base_path, languagePath, musicNum);
 	} else if (cmdType == NUMBER_CMD) {
-		sprintf(name, "%sSYSTEM/%d.wav", base_path, musicNum);
+		sprintf(name, "%sSYSTEM/%ld.wav", base_path, musicNum);
+	} else if (cmdType == LOCATION_MUSIC_CMD) {
+		printf("%s: musicNum is %ld\n", __FUNCTION__, musicNum);
+		id = musicNum / 10000;
+		usrAngle = musicNum - id * 10000;
+		//locationAngle = findLocationFile(id, usrAngle);
+		locationAngle = usrAngle;
+		if (locationAngle <= 0) {
+			//this point have no resouce with angle info
+			sprintf(name, "%s%sId_%d.wav", base_path, languagePath,id);
+		} else {
+			sprintf(name, "%s%sId_%d_%d.wav", base_path, languagePath, id, locationAngle);
+		}
 	}
 	printf("%s: the music name is %s\n", __FUNCTION__, name);
 

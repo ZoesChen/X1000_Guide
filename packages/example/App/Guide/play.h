@@ -63,6 +63,6 @@ enum playStatus playFlag;
 int StartPlay(int musicNum);
 void InitPlay();
 void StopPlay();
-void playInterface(CMDTYPE cmd, int mNum);
+void playInterface(CMDTYPE cmd, unsigned long int mNum);
 
 #endif

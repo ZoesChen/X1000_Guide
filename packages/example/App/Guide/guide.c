@@ -36,7 +36,7 @@ static int music_num[4] = {0};
 static int musicNum = -1;
 
 //static int location_music_num[5] = {0};
-static int locationMusicNum = -1;
+//static int locationMusicNum = -1;
 
 queue keyQueue;
 queue locationQueue;
@@ -168,11 +168,12 @@ void *PlayThreadHandle(void *arg)
 			break;
 			case NUMBER_CMD:
 				printf("%s: NUMBER_CMD\n", __FUNCTION__);
-				musicNum = cmdMsg->keyNum;
-				playInterface(cmdMsg->cmdType, musicNum);
+				playInterface(cmdMsg->cmdType,  cmdMsg->keyNum);
 			break;
 			case LOCATION_MUSIC_CMD:
 				printf("%s: LOCATION_MUSIC_CMD\n", __FUNCTION__);
+				printf("%s: locationInfo is %ld\n", __FUNCTION__, cmdMsg->locationNum);
+				playInterface(cmdMsg->cmdType, cmdMsg->locationNum);
 			break;
 			default:
 				break;
@@ -263,22 +264,20 @@ void *KeyThreadHandle(void *arg)
 
 void *LocationThreadHandle(void *arg)
 {
-	int location;
+	unsigned long int location;
 	while(readLocationFlag) {
 		ReadLocationInfo(&location);
 
-#ifdef DEBUG_ON_DEVBOARD
-		if (location == 10) {
-		//just for demo, because this value is fixed to 10 in kernel, and report every 20 s
-			locationMusicNum = 1111;
-			pthread_mutex_lock(&playThreadLock);
-			//Push(locationMusicNum, &locationQueue);
-			pthread_cond_signal(&playThreadCond);
-			pthread_mutex_unlock(&playThreadLock);
-		}
-#endif
+		//locationMusicNum = 1111;
+		struct cmdMsg *cmdMsg = (struct cmdMsg *)malloc(sizeof(struct cmdMsg));
+		cmdMsg->cmdType = LOCATION_MUSIC_CMD;
+		cmdMsg->locationNum = location;
+		pthread_mutex_lock(&playThreadLock);
+		Push(cmdMsg, &locationQueue);
+		pthread_cond_signal(&playThreadCond);
+		pthread_mutex_unlock(&playThreadLock);
 	}
-	printf("Will return from keyThread\n");
+	printf("Will return from locationThread\n");
 	return NULL;
 }
 
