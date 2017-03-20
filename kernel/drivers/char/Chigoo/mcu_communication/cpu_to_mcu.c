@@ -59,16 +59,16 @@ static u8     SendType = 0;
 static u32    AckStatues= 0; 
 
 //demo: give a mock data, high 4 bit num means ID, low 4 bit num means angle
-static long int location_test[6] = {
+static long int location_test[] = {
 	60230250, //ID: 6023, Angle: 250
 	  1030000, //No angle location info
 	60310340,
 	  1050000,
 	60390250,
 	12910000, // test error info
-	60390070,
-	60450170,
-	60450340
+	60390120,
+	60450180,
+	60450320
 };
 
 static unsigned int mockIndex = -1;
@@ -128,7 +128,7 @@ static ssize_t mcu_read(struct file * file,char * buf,size_t count,loff_t * f_op
     wake_up_interruptible(&location_queue);//
     /********»½ÐÑ  --test will in mcu_isr********/
     wait_event_interruptible(location_queue,queue_flag);
-    if (mockIndex++ >= 6) {
+    if (mockIndex++ >= 9) {
 	mockIndex = 0;
     }
     copy_to_user(buf, &location_test[mockIndex],sizeof(int));

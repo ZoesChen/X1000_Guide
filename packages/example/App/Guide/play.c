@@ -34,7 +34,14 @@ static char base_path[] = {"/mnt/sd/CHIGOORES/"};
 static enum LANGUAGE language = CHINESE;
 
 //recoder resource file name list
+struct LocationInfoArr {
+	int id;
+	int angle;
+} locationInfoArray[256];
+
 static char musicFile[256][64] = {0};
+//recoder music file number
+static unsigned int fileNumber = 0;
 /*
  * Function
  * */
@@ -148,11 +155,21 @@ void *MusicThreadHandle(void *arg)
 	return NULL;
 }
 
+static void scanResource()
+{
+	unsigned int i;
+	for(i = 0; i < fileNumber; i++) {
+		printf("%s\n", musicFile[i]);
+		printf("%d,%d\n", locationInfoArray[i].id, locationInfoArray[i].angle);
+	}
+}
+
 static void readResource()
 {
 	DIR *dir;
 	struct dirent *ptr;
 	char basePath[256] = {0};
+	int index = 0;
 	sprintf(basePath, "%sCN", base_path);
 	printf("open %s\n", basePath);
 	
@@ -165,9 +182,42 @@ static void readResource()
 		if (strcmp(ptr->d_name, ".") == 0 || strcmp(ptr->d_name,"..") == 0)
 			continue;
 		if (ptr->d_type == 8) { // file
-			printf("%s\n", ptr->d_name);
+			//printf("%s\n", ptr->d_name);
+			int nameIndex = 3; //the first 3 bit is ''I' 'd' '_'
+			int i = 0;
+			int num = 0; //get the num of number
+			char buf[64] = {0};
+			int isDigitFlag = 0;
+			while(ptr->d_name[nameIndex] != 0) {
+				if (isdigit(ptr->d_name[nameIndex])) {
+					buf[i] = ptr->d_name[nameIndex];
+					isDigitFlag = 1;
+				} else {
+					buf[i] = ' ';
+					if (isDigitFlag == 1) {
+						num++;
+						isDigitFlag = 0;
+					}
+				}
+				++i;
+				++nameIndex;
+			}
+			strcpy(musicFile[index], ptr->d_name);
+			switch(num) {
+				case 1:
+					sscanf(buf, "%d ", &(locationInfoArray[index].id));
+				break;
+				case 2:
+					sscanf(buf, "%d %d ", &(locationInfoArray[index].id), &(locationInfoArray[index].angle));
+				break;
+				default:
+				break;
+			}
+			index++;
 		}
 	}
+	fileNumber = index;
+	//scanResource();
 	closedir(dir);
 }
 
@@ -188,9 +238,48 @@ void InitPlay()
 	pthread_create(&musicThread, NULL, MusicThreadHandle, NULL);
 }
 
+static int findMinDiffAngle(int *angleDiffArray, int index)
+{
+	int min = angleDiffArray[0];
+	int minIndex = 0;
+	int i;
+	for (i = 0; i < index; i++) {
+		if(angleDiffArray[i] < min) {
+			min = angleDiffArray[i];
+			minIndex = i;
+		}
+	}
+	return minIndex;
+}
+
 static int findLocationFile(int id, int usrAngle)
 {
 	int angle = 0;
+	int index = 0;
+	int existNum = 0;
+	struct LocationInfoArr info[4] = {0};
+	int angleAbsDiff[4] = {0};
+	//Find out in this eara, how many audio resource exist,  
+	//and save it info into info 
+	for (index = 0; index < fileNumber; index++) {
+		if (id == locationInfoArray[index].id) {
+			info[existNum].id = locationInfoArray[index].id;
+			info[existNum].angle = locationInfoArray[index].angle;
+			angleAbsDiff[existNum] = abs(usrAngle - locationInfoArray[index].angle);
+			existNum++;
+		}
+	}
+
+	printf("%s: In this eara, have %d audio resource\n", __FUNCTION__, existNum);
+
+	if (existNum == 1) {
+		angle = info[0].angle;
+	} else if (existNum > 1) {
+		angle = info[findMinDiffAngle(angleAbsDiff, existNum)].angle;
+	} else {
+		angle = -1;
+	}
+	printf("%s: the real angle is %d\n", __FUNCTION__, angle);
 	return angle;
 }
 
@@ -217,13 +306,18 @@ char *matchMusic(unsigned long int musicNum)
 		printf("%s: musicNum is %ld\n", __FUNCTION__, musicNum);
 		id = musicNum / 10000;
 		usrAngle = musicNum - id * 10000;
-		//locationAngle = findLocationFile(id, usrAngle);
-		locationAngle = usrAngle;
-		if (locationAngle <= 0) {
+		if (usrAngle != 0) {
+			locationAngle = findLocationFile(id, usrAngle);
+		} else {
+			locationAngle = usrAngle;
+		}
+		if (locationAngle == 0) {
 			//this point have no resouce with angle info
 			sprintf(name, "%s%sId_%d.wav", base_path, languagePath,id);
-		} else {
+		} else if (locationAngle > 0){
 			sprintf(name, "%s%sId_%d_%d.wav", base_path, languagePath, id, locationAngle);
+		} else {
+			return NULL;
 		}
 	}
 	printf("%s: the music name is %s\n", __FUNCTION__, name);
