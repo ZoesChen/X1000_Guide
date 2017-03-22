@@ -67,16 +67,16 @@
 	{ .name = "slcd", .port = GPIO_PORT_A, .func = GPIO_FUNC_1, .pins = 0x1ff, }, \
         { .name = "slcd", .port = GPIO_PORT_B, .func = GPIO_FUNC_1, .pins = 0x1a << 16, }
 
-#define SLCDC_PORTAB_16BIT						\
+/*#define SLCDC_PORTAB_16BIT						\
         { .name = "slcd", .port = GPIO_PORT_A, .func = GPIO_FUNC_1, .pins = 0xffff, },\
-        { .name = "slcd", .port = GPIO_PORT_B, .func = GPIO_FUNC_1, .pins = 0x12 << 16, }
+        { .name = "slcd", .port = GPIO_PORT_B, .func = GPIO_FUNC_1, .pins = 0x12 << 16, }*/
 
 #define PWM_PORTC_BIT0							\
 	{ .name = "pwm0", .port = GPIO_PORT_C, .func = GPIO_FUNC_0, .pins = 1 << 25, }
-#define PWM_PORTC_BIT1							\
+/*#define PWM_PORTC_BIT1							\
 	{ .name = "pwm1", .port = GPIO_PORT_C, .func = GPIO_FUNC_1, .pins = 1 << 26, }
 #define PWM_PORTC_BIT2							\
-	{ .name = "pwm2", .port = GPIO_PORT_C, .func = GPIO_FUNC_1, .pins = 1 << 27, }
+	{ .name = "pwm2", .port = GPIO_PORT_C, .func = GPIO_FUNC_1, .pins = 1 << 27, }*/
 #define PWM_PORTB_BIT3							\
 	{ .name = "pwm3", .port = GPIO_PORT_B, .func = GPIO_FUNC_2, .pins = 1 << 6, }
 #define PWM_PORTC_BIT4							\
@@ -94,6 +94,13 @@
 #define SCC_PORTB							\
 	{ .name = "scc",    .port = GPIO_PORT_B,  .func = GPIO_FUNC_1, .pins = 0x3 << 23, }
 /****************************************************************************************/
+#define CHIGOO_GPIO							\
+	{ .name = "chigoo_gpio", .port=GPIO_PORT_B, .func=GPIO_FUNC_0, .pins = 0x0f << 17, }
+
+	/*\
+	{ .name = "AUDIO_PWREN", .port = GPIO_PORT_C, .func = GPIO_FUNC_0, .pins = 1 << 23, },\
+	{ .name = "MCU_DATA", .port = GPIO_PORT_C, .func = GPIO_FUNC_0, .pins = 0x03 << 26, },\
+	{ .name = "MCU_COMMUNICATE", .port = GPIO_PORT_D, .func = GPIO_FUNC_0, .pins = 0x0f, }*/
 
 
 /* JZ SoC on Chip devices list */

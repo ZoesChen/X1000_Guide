@@ -29,11 +29,14 @@
 static pthread_t keyThread;
 static pthread_t locationThread;
 static pthread_t playThread;
+static pthread_t batteryThread;
 static int readKeyFlag = 0;
 static int readLocationFlag = 0;
 
 static int music_num[4] = {0};
 static int musicNum = -1;
+
+static int batteryDevFd = -1;
 
 //static int location_music_num[5] = {0};
 //static int locationMusicNum = -1;
@@ -54,6 +57,11 @@ enum QueueCondition
 	BOTH_BUSY,
 	INVALID
 };
+
+struct ChargeInfo {
+	int isCharging;
+	int isLowPower;
+}chargeInfo;
 
 
 /************************************  Function ************************************/
@@ -94,6 +102,16 @@ static void insteadedOkKey(int sig)
 }
 #endif
 
+static int OpenBatteryDev()
+{
+	batteryDevFd = open("/dev/char_dev", O_RDWR);
+	if (batteryDevFd <= 0) {
+		return FAIL;
+	} else {
+		return SUCCESS;
+	}
+}
+
 static int Init()
 {
 	if (OpenKeyDev() < 0) {
@@ -103,13 +121,17 @@ static int Init()
 	if (OpenMcuDev() < 0) {
 		return FAIL;
 	}
-	
+
+	if (OpenBatteryDev() < 0) {
+		return FAIL;
+	}
 	InitPlay();
 	InitQueue();
 
 	pthread_create(&keyThread, NULL, KeyThreadHandle, NULL);
    	pthread_create(&locationThread, NULL, LocationThreadHandle, NULL);
 	pthread_create(&playThread, NULL, PlayThreadHandle, NULL);
+	pthread_create(&batteryThread, NULL, BatteryThreadHandle, NULL);
 
 #ifdef DEBUG_ON_DEVBOARD
 //Just for debug, CTRL+C to fill up array music_num, then push into keyqueue
@@ -121,6 +143,14 @@ static int Init()
 	readKeyFlag = 1;
 	readLocationFlag = 1;
 	return 0;
+}
+
+void *BatteryThreadHandle(void *arg)
+{
+	while(readKeyFlag) {
+		read(batteryDevFd, &chargeInfo, sizeof(chargeInfo))
+	}
+	return NULL;
 }
 
 void *PlayThreadHandle(void *arg)

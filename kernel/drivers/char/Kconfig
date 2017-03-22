@@ -749,10 +749,10 @@ config TILE_SROM
 	  in /dev/srom/.  The Tilera hypervisor makes the flash
 	  device appear much like a simple EEPROM, and knows
 	  how to partition a single ROM for multiple purposes.
-
+	  
+source "drivers/char/Chigoo/Kconfig"
 endmenu
 
-menu "CHIGOO_MCU"
-source "drivers/char/Chigoo/mcu_communication/Kconfig"
-endmenu
+
+
 

@@ -142,6 +142,9 @@ struct jz_gpio_func_def platform_devio_array[] = {
 #ifdef CONFIG_JZ_SPI0_PD
 	SSI0_PORTD,
 #endif
+#ifdef CONFIG_CHIGOO_DRIVER
+	CHIGOO_GPIO,
+#endif
 };
 
 int platform_devio_array_size = ARRAY_SIZE(platform_devio_array);

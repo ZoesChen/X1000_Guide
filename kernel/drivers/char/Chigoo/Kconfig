@@ -1,0 +1,17 @@
+#
+# Chigoo device configuration
+#
+menuconfig CHIGOO_DRIVER
+	tristate "CHIGOO Hardware Support"
+	
+if CHIGOO_DRIVER
+
+config CHIGOO_DRIVER_MCU
+	tristate "CHIGOO Cpu Communicate With Mcu"
+	depends on CHIGOO_DRIVER
+	
+config CHIGOO_DRIVER_CHARGE
+	tristate "CHIGOO Cpu Get Battery Value"
+	depends on CHIGOO_DRIVER
+
+endif
