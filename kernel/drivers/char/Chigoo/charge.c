@@ -27,6 +27,9 @@ struct ChargeInfo {
 #define LED_G		GPIO_PA(9)	//LOW EFFECT
 #define LED_B		GPIO_PA(10)	//LOW EFFECT
 #define TF_POWER	GPIO_PB(17) //LOW EFFECT
+#define AUDIO_POWER	GPIO_PC(23)
+#define SPEAKER_SHUTDOWN GPIO_PB(06) // HIGH EFFECT
+#define EAR_SHUTDOWN GPIO_PB(07)//HIGH EFFECT
 
 #define CHARGING 		0
 #define UNCHARGING		1
@@ -131,6 +134,10 @@ static void charge_gpio_init()
 	gpio_request(LED_G, "led_g");
 	gpio_request(LED_B, "led_b");
 	gpio_request(TF_POWER, "tf_power");
+	printk("\n*******************Request audio power pin ********************\n");
+	gpio_request(AUDIO_POWER, "audioPower");
+	gpio_request(SPEAKER_SHUTDOWN, "speaker");
+	gpio_request(EAR_SHUTDOWN, "ear");
 
 	gpio_direction_input(IND_CHARGE);
 	gpio_direction_input(BVL_ALRT);
@@ -138,6 +145,10 @@ static void charge_gpio_init()
 	gpio_direction_output(LED_G, OFF);
 	gpio_direction_output(LED_B, OFF);
 	gpio_direction_output(TF_POWER, ON);
+	printk("\n*******************Set audio power pin to high********************\n");
+	gpio_direction_output(AUDIO_POWER,1);
+	gpio_direction_output(SPEAKER_SHUTDOWN,1);
+	//gpio_direction_output(EAR_SHUTDOWN,1);
 }
 
 //   设备初始化 

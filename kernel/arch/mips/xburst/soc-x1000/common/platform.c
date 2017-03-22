@@ -48,9 +48,9 @@ struct jz_gpio_func_def platform_devio_array[] = {
 #ifdef CONFIG_I2C1_V12_PA
 	I2C1_PORTA,
 #endif
-#ifdef CONFIG_I2C1_V12_PC
+/*#ifdef CONFIG_I2C1_V12_PC
 	I2C1_PORTC,
-#endif
+#endif*/
 #ifdef CONFIG_I2C2_V12_JZ
 	I2C2_PORTD,
 #endif
@@ -117,9 +117,9 @@ struct jz_gpio_func_def platform_devio_array[] = {
 	PWM_PORTC_BIT4,
 #endif
 
-#ifdef CONFIG_JZ_MAC
+/*#ifdef CONFIG_JZ_MAC
 	RMII_PORTB,
-#endif
+#endif*/
 
 #ifdef CONFIG_USB_DWC2_DRVVBUS_PIN
 	OTG_DRVVUS,
