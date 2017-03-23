@@ -140,7 +140,6 @@ static void matrix_keypad_scan(struct work_struct *work)
 
 		activate_col(pdata, col, false);
 	}
-	printk("%s %s %d \n",__FILE__,__FUNCTION__,__LINE__); 
 
 	for (col = 0; col < pdata->num_col_gpios; col++) {
 		uint32_t bits_changed;
@@ -154,7 +153,7 @@ static void matrix_keypad_scan(struct work_struct *work)
 				continue;
 
 			code = MATRIX_SCAN_CODE(row, col, keypad->row_shift);
-			printk("%s %s %d : key[%d], row[%d], col[%d]\n",__FILE__,__FUNCTION__,__LINE__, keycodes[code], row, col); 
+			//printk("%s %s %d : key[%d], row[%d], col[%d]\n",__FILE__,__FUNCTION__,__LINE__, keycodes[code], row, col); 
 			input_event(input_dev, EV_MSC, MSC_SCAN, code);
 			input_report_key(input_dev,
 					 keycodes[code],

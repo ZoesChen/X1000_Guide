@@ -38,6 +38,8 @@ static int musicNum = -1;
 
 static int batteryDevFd = -1;
 
+int isKeyMusicPlaying = 0;
+
 //static int location_music_num[5] = {0};
 //static int locationMusicNum = -1;
 
@@ -271,6 +273,8 @@ void *KeyThreadHandle(void *arg)
 		if (musicNumIndex >= MAX_MUSIC_INDEX || keyCode == CHIGOO_KEYOK) {
 			int i;
 			cmdMsg->cmdType = MUSIC_CMD;
+			isKeyMusicPlaying = 1;//when key music playing, location music can not play
+			printf("%s: key music is playing...\n", __FUNCTION__);
 			for (i = 0; i < musicNumIndex; i++) {
 				cmdMsg->cmdValue[musicNumIndex - i -1] = music_num[i];
 			}
@@ -297,6 +301,11 @@ void *LocationThreadHandle(void *arg)
 	unsigned long int location;
 	while(readLocationFlag) {
 		ReadLocationInfo(&location);
+		if (isKeyMusicPlaying == 1) {
+			sleep(1);
+			printf("%s: key music is playing, wait it finish...\n", __FUNCTION__);
+			continue;
+		}
 
 		//locationMusicNum = 1111;
 		struct cmdMsg *cmdMsg = (struct cmdMsg *)malloc(sizeof(struct cmdMsg));

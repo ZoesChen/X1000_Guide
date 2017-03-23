@@ -33,6 +33,8 @@ static pthread_t musicThread;
 static char base_path[] = {"/mnt/sd/CHIGOORES/"};
 static enum LANGUAGE language = CHINESE;
 
+extern int isKeyMusicPlaying;
+
 //recoder resource file name list
 struct LocationInfoArr {
 	int id;
@@ -97,6 +99,8 @@ void *MusicThreadHandle(void *arg)
 			musicName = matchMusic(musicNumber);
 			if (musicName == NULL) {
 				printf("Can not match music!\n");
+				if (isKeyMusicPlaying == 1)
+					isKeyMusicPlaying = 0;
 				return NULL;
 			}
 
@@ -147,6 +151,10 @@ void *MusicThreadHandle(void *arg)
 			play_sample(file, card, device, channels, rate, bits, period_size, period_count);
 			fclose(file);
 			playFlag = DISABLEPLAY;
+			if (isKeyMusicPlaying == 1) {
+				printf("%s: key music is play finish\n", __FUNCTION__);
+				isKeyMusicPlaying = 0;
+			}
 		}
 		pthread_mutex_lock(&musicLock);
 		pthread_cond_signal(&musicCond);
@@ -217,7 +225,7 @@ static void readResource()
 		}
 	}
 	fileNumber = index;
-	//scanResource();
+	scanResource();
 	closedir(dir);
 }
 
