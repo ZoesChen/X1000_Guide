@@ -154,8 +154,7 @@ static void matrix_keypad_scan(struct work_struct *work)
 				continue;
 
 			code = MATRIX_SCAN_CODE(row, col, keypad->row_shift);
-			printk("%s %s %d : key[%s], row[%d], col[%d]\n",__FILE__,__FUNCTION__,__LINE__); 
-			printk("%s %s %d : val = %d, key = %d \n",__FILE__,__FUNCTION__,__LINE__, code, keycodes[code]); 
+			printk("%s %s %d : key[%d], row[%d], col[%d]\n",__FILE__,__FUNCTION__,__LINE__, keycodes[code], row, col); 
 			input_event(input_dev, EV_MSC, MSC_SCAN, code);
 			input_report_key(input_dev,
 					 keycodes[code],

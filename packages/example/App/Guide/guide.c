@@ -131,7 +131,7 @@ static int Init()
 	pthread_create(&keyThread, NULL, KeyThreadHandle, NULL);
    	pthread_create(&locationThread, NULL, LocationThreadHandle, NULL);
 	pthread_create(&playThread, NULL, PlayThreadHandle, NULL);
-	pthread_create(&batteryThread, NULL, BatteryThreadHandle, NULL);
+	//pthread_create(&batteryThread, NULL, BatteryThreadHandle, NULL);
 
 #ifdef DEBUG_ON_DEVBOARD
 //Just for debug, CTRL+C to fill up array music_num, then push into keyqueue
@@ -145,13 +145,13 @@ static int Init()
 	return 0;
 }
 
-void *BatteryThreadHandle(void *arg)
+/*void *BatteryThreadHandle(void *arg)
 {
 	while(readKeyFlag) {
-		read(batteryDevFd, &chargeInfo, sizeof(chargeInfo))
+		read(batteryDevFd, &chargeInfo, sizeof(chargeInfo));
 	}
 	return NULL;
-}
+}*/
 
 void *PlayThreadHandle(void *arg)
 {
@@ -218,12 +218,12 @@ CMDTYPE JudgeKeyCmd(int *value)
 {
 	int key = *value;
 	CMDTYPE cmdType = INVAILD_CMD;
-	if (key >= A90_GUIDE_KEY1 && key <= A90_GUIDE_KEY0) {
+	if (key >= CHIGOO_KEY1 && key <= CHIGOO_KEY0) {
 		cmdType = NUMBER_CMD;
-		if (key == A90_GUIDE_KEY0) {
+		if (key == CHIGOO_KEY0) {
 			*value = 0;
 		}
-	} else if (key >= A90_GUIDE_KEYCE && key <= A90_GUIDE_KEY_BACK) {
+	} else if (key >= CHIGOO_KEYCE && key <= CHIGOO_BACK) {
 		cmdType = OPTION_CMD;
 	}
 	return cmdType;
@@ -268,7 +268,7 @@ void *KeyThreadHandle(void *arg)
 		//wait something finish
 		sleep(1);
 
-		if (musicNumIndex >= MAX_MUSIC_INDEX || keyCode == A90_GUIDE_KEYOK) {
+		if (musicNumIndex >= MAX_MUSIC_INDEX || keyCode == CHIGOO_KEYOK) {
 			int i;
 			cmdMsg->cmdType = MUSIC_CMD;
 			for (i = 0; i < musicNumIndex; i++) {

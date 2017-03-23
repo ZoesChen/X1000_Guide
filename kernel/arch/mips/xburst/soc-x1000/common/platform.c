@@ -30,6 +30,7 @@
 #include <linux/gpio_keys.h>
 #include <linux/input.h>
 #include <linux/input/matrix_keypad.h>
+#include <linux/chigoo_key.h>
 
 /* device IO define array */
 struct jz_gpio_func_def platform_devio_array[] = {
@@ -942,22 +943,22 @@ struct platform_device jz_wdt_device = {
 };
 #endif
 static const uint32_t jzx1000_keymap[] = {
-	      KEY(0,0, KEY_0),
-	      KEY(0,1, KEY_1),
-	      KEY(0,2, KEY_2),
-	      KEY(0,3, KEY_3),
-	      KEY(1,0, KEY_4),
-	      KEY(1,1, KEY_5),
-	      KEY(1,2, KEY_6),
-	      KEY(1,3, KEY_7),
-	      KEY(2,0, KEY_8),
-	      KEY(2,1, KEY_9),
-	      KEY(2,2, KEY_UP),
-	      KEY(2,3, KEY_DOWN),
-	      KEY(3,0, KEY_LEFT),
-	      KEY(3,1, KEY_RIGHT),
-	      KEY(3,2, KEY_HOME),
-	      KEY(3,3, KEY_BACK),
+	      KEY(0,0, CHIGOO_KEY0),
+	      KEY(0,1, CHIGOO_KEY4),
+	      KEY(0,2, CHIGOO_KEY8),
+	      KEY(0,3, CHIGOO_BACK),
+	      KEY(1,0, CHIGOO_KEY1),
+	      KEY(1,1, CHIGOO_KEY5),
+	      KEY(1,2, CHIGOO_KEY9),
+	      KEY(1,3, CHIGOO_LANGUAGE),
+	      KEY(2,0, CHIGOO_KEY2),
+	      KEY(2,1, CHIGOO_KEY6),
+	      KEY(2,2, CHIGOO_VOLUME_PLUSE),
+	      KEY(2,3, CHIGOO_KEYCE),
+	      KEY(3,0, CHIGOO_KEY3),
+	      KEY(3,1, CHIGOO_KEY7),
+	      KEY(3,2, CHIGOO_VOLUME_REDUSE),
+	      KEY(3,3, CHIGOO_KEYOK),
 };
 
 static struct matrix_keymap_data jzx1000_keymap_data= {
@@ -988,7 +989,7 @@ static struct matrix_keypad_platform_data jz_matrix_pdata = {
          .col_scan_delay_us     = 10,
          .debounce_ms           = 80,
          .wakeup                = 1,
-         .active_low            = 0,
+         .active_low            = 1,
 };
 
 struct platform_device jz_matrix_device = {

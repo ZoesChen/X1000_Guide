@@ -2,22 +2,23 @@
 #define _GUIDE_KEY_H_
 
 #define KEY_DEVICE "/dev/input/event0"
-#define A90_GUIDE_KEY0 		10
-#define A90_GUIDE_KEY1 		1
-#define A90_GUIDE_KEY2 		2
-#define A90_GUIDE_KEY3 		3
-#define A90_GUIDE_KEY4 		4
-#define A90_GUIDE_KEY5 		5
-#define A90_GUIDE_KEY6 		6
-#define A90_GUIDE_KEY7 		7
-#define A90_GUIDE_KEY8 		8
-#define A90_GUIDE_KEY9 		9
-#define A90_GUIDE_KEYCE		11
-#define A90_GUIDE_KEYOK		12
-#define A90_GUIDE_KEYP		13 // Play & Pause
-#define A90_GUIDE_KEY_VALUEUP 14
-#define A90_GUIDE_KEY_VALUEDOWN 15
-#define A90_GUIDE_KEY_BACK	16
+#define CHIGOO_KEY1	1
+#define CHIGOO_KEY2 2
+#define CHIGOO_KEY3 3
+#define CHIGOO_KEY4 4
+#define CHIGOO_KEY5 5
+#define CHIGOO_KEY6 6
+#define CHIGOO_KEY7 7
+#define CHIGOO_KEY8 8
+#define CHIGOO_KEY9 9
+#define CHIGOO_KEY0 10
+#define CHIGOO_KEYCE 11
+#define CHIGOO_KEYOK 12
+#define CHIGOO_LANGUAGE	13
+#define CHIGOO_VOLUME_PLUSE 14
+#define CHIGOO_VOLUME_REDUSE 15
+#define CHIGOO_BACK 16
+
 
 typedef enum cmdType {
 	MUSIC_CMD,

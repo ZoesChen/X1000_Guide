@@ -99,7 +99,8 @@
 	{ .name = "AUDIO_PWREN", .port = GPIO_PORT_C, .func = GPIO_FUNC_0, .pins = 1 << 23, },\
 	{ .name = "MCU_DATA", .port = GPIO_PORT_C, .func = GPIO_FUNC_0, .pins = 0x03 << 26, },\
 	{ .name = "MCU_COMMUNICATE", .port = GPIO_PORT_D, .func = GPIO_FUNC_0, .pins = 0x0f, }, \
-	{ .name = "AUDIO_CONTROL", .port = GPIO_PORT_B, .func = GPIO_FUNC_0, .pins = 0x03 << 6, }
+	{ .name = "AUDIO_CONTROL", .port = GPIO_PORT_B, .func = GPIO_FUNC_0, .pins = 0x03 << 6, }, \
+	{ .name = "KEYBOARD", .port = GPIO_PORT_A, .func = GPIO_FUNC_0, .pins= 0xff}
 
 
 /* JZ SoC on Chip devices list */
