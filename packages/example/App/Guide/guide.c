@@ -23,6 +23,11 @@
 #define	SUCCESS		0
 #define	FAIL			(-1)
 
+#define LED_R_LIGHT		0x01
+#define LED_G_LIGHT		0x10
+#define LED_B_LIGHT		0x11
+
+
 /*
  * Parameter
  * */
@@ -71,6 +76,8 @@ struct ChargeInfo {
 static void *KeyThreadHandle(void *arg);
 static void *PlayThreadHandle(void *arg);
 static void *LocationThreadHandle(void *arg);
+static void *BatteryThreadHandle(void *arg);
+
 
 static enum QueueCondition whichQueueFree()
 {
@@ -133,7 +140,7 @@ static int Init()
 	pthread_create(&keyThread, NULL, KeyThreadHandle, NULL);
    	pthread_create(&locationThread, NULL, LocationThreadHandle, NULL);
 	pthread_create(&playThread, NULL, PlayThreadHandle, NULL);
-	//pthread_create(&batteryThread, NULL, BatteryThreadHandle, NULL);
+	pthread_create(&batteryThread, NULL, BatteryThreadHandle, NULL);
 
 #ifdef DEBUG_ON_DEVBOARD
 //Just for debug, CTRL+C to fill up array music_num, then push into keyqueue
@@ -147,13 +154,26 @@ static int Init()
 	return 0;
 }
 
-/*void *BatteryThreadHandle(void *arg)
+void *BatteryThreadHandle(void *arg)
 {
 	while(readKeyFlag) {
 		read(batteryDevFd, &chargeInfo, sizeof(chargeInfo));
+		printf("%s, %s\n", chargeInfo.isCharging ? "Charging" : "UnCharged", chargeInfo.isLowPower ? "LOW" : "NORMAL");
+
+		if (chargeInfo.isCharging == 1) {
+		//Charging light Blue led
+			ioctl(batteryDevFd, LED_B_LIGHT, NULL);
+		}  else if (chargeInfo.isLowPower == 1) {
+		//Low Power light Red led
+			ioctl(batteryDevFd, LED_R_LIGHT, NULL);
+		} else {
+		//UnCharge and Normal power, light green led
+			ioctl(batteryDevFd, LED_G_LIGHT, NULL);
+		}
+		sleep(5);//read battery stat erery 5 seconds
 	}
 	return NULL;
-}*/
+}
 
 void *PlayThreadHandle(void *arg)
 {

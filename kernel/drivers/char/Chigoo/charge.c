@@ -23,9 +23,9 @@ struct ChargeInfo {
 
 #define IND_CHARGE	GPIO_PB(18)
 #define BVL_ALRT		GPIO_PB(19)
-#define LED_R		GPIO_PA(8)	//LOW EFFECT
+#define LED_B		GPIO_PA(8)	//LOW EFFECT
 #define LED_G		GPIO_PA(9)	//LOW EFFECT
-#define LED_B		GPIO_PA(10)	//LOW EFFECT
+#define LED_R		GPIO_PA(10)	//LOW EFFECT
 #define TF_POWER	GPIO_PB(17) //LOW EFFECT
 #define AUDIO_POWER	GPIO_PC(23)
 #define SPEAKER_SHUTDOWN GPIO_PB(06) // HIGH EFFECT
@@ -48,6 +48,9 @@ int char_dev_open(struct inode *inode, struct file *filp)
 {
     //  这里可以进行一些初始化
     printk("char_dev device open.\n");
+    gpio_direction_output(EAR_SHUTDOWN,1);
+
+	gpio_direction_output(LED_R, ON);
     return 0;
 }
  
@@ -64,11 +67,10 @@ static int char_dev_release (struct inode *node, struct file *file)
 用来找出对用户空间地址的错误使用.*/
 ssize_t char_dev_read(struct file *file,char __user *buff,size_t count,loff_t *offp)
 {
-    printk("char_dev device read.\n");
-    chargeInfo.isCharging = (gpio_get_value_cansleep(IND_CHARGE) == 0) ? CHARGING : UNCHARGING;
+    chargeInfo.isCharging = (gpio_get_value_cansleep(IND_CHARGE) == 1) ? CHARGING : UNCHARGING;
     chargeInfo.isLowPower = (gpio_get_value_cansleep(BVL_ALRT) == 1) ? LOWPOWER : NOMALPOWER;
-    
-    copy_to_user(buff, &chargeInfo, sizeof(chargeInfo));
+	printk("%s, %s\n", chargeInfo.isCharging ? "Charging" : "UnCharged", chargeInfo.isLowPower ? "LOW" : "NORMAL");
+	copy_to_user(buff, &chargeInfo, sizeof(chargeInfo));
     return 0;
 }
 // 实现写功能，写设备，对应应用空间的write 系统调用
@@ -92,6 +94,38 @@ ssize_t char_dev_write(struct file *file,const char __user *buff,size_t count,lo
     }
     return 0;
 }
+
+static long
+charge_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+{
+	printk("char_dev device ioctl, cmd %d.\n", cmd);
+	switch (cmd) {
+		case LED_R_LIGHT:
+			printk("LED_R_LIGHT\n");
+			gpio_set_value(LED_G, OFF);
+			gpio_set_value(LED_B, OFF);
+			gpio_set_value(LED_R, ON);
+			
+		break;
+		case LED_G_LIGHT:
+			printk("LED_G_LIGHT\n");
+			gpio_set_value(LED_G, ON);
+			gpio_set_value(LED_B, OFF);
+			gpio_set_value(LED_R, OFF);
+
+		break;
+		case LED_B_LIGHT:
+			printk("LED_B_LIGHT\n");
+			gpio_set_value(LED_G, OFF);
+			gpio_set_value(LED_B, ON);
+			gpio_set_value(LED_R, OFF);
+
+		break;
+		default:
+		break;
+	}
+	return 0;
+}
  
 // 实现主要控制功能，控制设备，对应应用空间的ioctl系统调用
 static int char_dev_ioctl(struct inode *inode,struct file *file,unsigned int cmd,unsigned long arg)
@@ -108,7 +142,7 @@ static struct file_operations char_dev_fops =
     .release = char_dev_release, // 关闭设备 
     .read  = char_dev_read,      // 实现设备读功能 
     .write = char_dev_write,     // 实现设备写功能 
-    //.ioctl = char_dev_ioctl,     // 实现设备控制功能 
+    .unlocked_ioctl =  charge_unlocked_ioctl,
 };
 
 // 设备建立子函数，被char_dev_init函数调用  
@@ -134,9 +168,9 @@ static void charge_gpio_init()
 	gpio_request(LED_G, "led_g");
 	gpio_request(LED_B, "led_b");
 	gpio_request(TF_POWER, "tf_power");
-	printk("\n*******************Request audio power pin ********************\n");
 	gpio_request(AUDIO_POWER, "audioPower");
 	gpio_request(SPEAKER_SHUTDOWN, "speaker");
+	printk("\n*******************Request EAR_SHUTDOWN ********************\n");
 	gpio_request(EAR_SHUTDOWN, "ear");
 
 	gpio_direction_input(IND_CHARGE);
@@ -145,10 +179,10 @@ static void charge_gpio_init()
 	gpio_direction_output(LED_G, OFF);
 	gpio_direction_output(LED_B, OFF);
 	gpio_direction_output(TF_POWER, ON);
-	printk("\n*******************Set audio power pin to high********************\n");
 	gpio_direction_output(AUDIO_POWER,1);
-	gpio_direction_output(SPEAKER_SHUTDOWN,1);
-	//gpio_direction_output(EAR_SHUTDOWN,1);
+	//gpio_direction_output(SPEAKER_SHUTDOWN,1);
+	
+	gpio_direction_output(EAR_SHUTDOWN,1);
 }
 
 //   设备初始化 

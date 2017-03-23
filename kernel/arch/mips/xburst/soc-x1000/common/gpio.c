@@ -376,13 +376,15 @@ static int jz_gpio_to_irq(struct gpio_chip *chip, unsigned offset)
 static int jz_gpio_request(struct gpio_chip *chip, unsigned offset)
 {
 	struct jzgpio_chip *jz = gpio2jz(chip);
-
+	if (1 << offset & 0x80)
+		printk("%s: zoe debug\n", __FUNCTION__);
 	if(!test_bit(offset, jz->gpio_map)) {
 		printk(KERN_WARNING "gpio has conflict\n");
 		return -EINVAL;
 	}
 	if(jz->dev_map[0] & (1 << offset)) {
 		printk("gpio:jz->reg = 0x%x\n", (unsigned int)jz->reg);
+		printk("offset = %d\n", offset);
 		printk("gpio pin: 0x%x\n", 1 << offset);
 		printk("jz->dev_map[0]: 0x%x\n", (unsigned int)jz->dev_map[0]);
 		dump_stack();
