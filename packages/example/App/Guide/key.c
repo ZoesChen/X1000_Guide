@@ -49,7 +49,7 @@ int ReadKey(int *keyCode)
 		if (event->type == EV_KEY) {
 			new_sec = event->time.tv_sec;
 			new_key = event->code;
-			//printf("new_key = %d, new sec=%d\n", new_key, new_sec);
+			printf("\n********************new_key = %d, new sec=%d********************\n", new_key, new_sec);
 			if (new_key == old_key && (new_sec - old_sec) < 1) {
 				//printf("[%s] the same key %d report too frequence %d!\n", __FUNCTION__, new_key, (new_sec - old_sec));
 				return -1;

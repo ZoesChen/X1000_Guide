@@ -69,7 +69,7 @@ ssize_t char_dev_read(struct file *file,char __user *buff,size_t count,loff_t *o
 {
     chargeInfo.isCharging = (gpio_get_value_cansleep(IND_CHARGE) == 1) ? CHARGING : UNCHARGING;
     chargeInfo.isLowPower = (gpio_get_value_cansleep(BVL_ALRT) == 1) ? LOWPOWER : NOMALPOWER;
-	printk("%s, %s\n", chargeInfo.isCharging ? "Charging" : "UnCharged", chargeInfo.isLowPower ? "LOW" : "NORMAL");
+	//printk("%s, %s\n", chargeInfo.isCharging ? "Charging" : "UnCharged", chargeInfo.isLowPower ? "LOW" : "NORMAL");
 	copy_to_user(buff, &chargeInfo, sizeof(chargeInfo));
     return 0;
 }
@@ -98,24 +98,24 @@ ssize_t char_dev_write(struct file *file,const char __user *buff,size_t count,lo
 static long
 charge_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
-	printk("char_dev device ioctl, cmd %d.\n", cmd);
+	//printk("char_dev device ioctl, cmd %d.\n", cmd);
 	switch (cmd) {
 		case LED_R_LIGHT:
-			printk("LED_R_LIGHT\n");
+			//printk("LED_R_LIGHT\n");
 			gpio_set_value(LED_G, OFF);
 			gpio_set_value(LED_B, OFF);
 			gpio_set_value(LED_R, ON);
 			
 		break;
 		case LED_G_LIGHT:
-			printk("LED_G_LIGHT\n");
+			//printk("LED_G_LIGHT\n");
 			gpio_set_value(LED_G, ON);
 			gpio_set_value(LED_B, OFF);
 			gpio_set_value(LED_R, OFF);
 
 		break;
 		case LED_B_LIGHT:
-			printk("LED_B_LIGHT\n");
+			//printk("LED_B_LIGHT\n");
 			gpio_set_value(LED_G, OFF);
 			gpio_set_value(LED_B, ON);
 			gpio_set_value(LED_R, OFF);
@@ -180,9 +180,9 @@ static void charge_gpio_init()
 	gpio_direction_output(LED_B, OFF);
 	gpio_direction_output(TF_POWER, ON);
 	gpio_direction_output(AUDIO_POWER,1);
-	//gpio_direction_output(SPEAKER_SHUTDOWN,1);
+	gpio_direction_output(SPEAKER_SHUTDOWN,1);
 	
-	gpio_direction_output(EAR_SHUTDOWN,1);
+	gpio_direction_output(EAR_SHUTDOWN,0);
 }
 
 //   设备初始化 

@@ -158,7 +158,7 @@ void *BatteryThreadHandle(void *arg)
 {
 	while(readKeyFlag) {
 		read(batteryDevFd, &chargeInfo, sizeof(chargeInfo));
-		printf("%s, %s\n", chargeInfo.isCharging ? "Charging" : "UnCharged", chargeInfo.isLowPower ? "LOW" : "NORMAL");
+		//printf("%s, %s\n", chargeInfo.isCharging ? "Charging" : "UnCharged", chargeInfo.isLowPower ? "LOW" : "NORMAL");
 
 		if (chargeInfo.isCharging == 1) {
 		//Charging light Blue led
@@ -183,19 +183,19 @@ void *PlayThreadHandle(void *arg)
 		pthread_mutex_lock(&playThreadLock);
 		switch(whichQueueFree()){
 			case BOTH_FREE:
-				printf("BOTH_FREE\n");
+				//printf("BOTH_FREE\n");
 				pthread_cond_wait(&playThreadCond, &playThreadLock);
 				printf("%s: Wake up by cond\n", __FUNCTION__);
 				pthread_mutex_unlock(&playThreadLock);
 				continue;
 			break;
 			case BOTH_BUSY:
-				printf("BOTH_BUSY\n");
+				//printf("BOTH_BUSY\n");
 				cmdMsg = Pop(&keyQueue);
 			break;
 			case KEYQUEUE_FREE:
 			//keyqueue NULL, locationQueue not NULL
-				printf("KEYQUEUE_FREE\n");
+				//printf("KEYQUEUE_FREE\n");
 				cmdMsg = Pop(&locationQueue);
 			break;
 			case LOCATIONQUEUE_FREE:
@@ -209,22 +209,22 @@ void *PlayThreadHandle(void *arg)
 
 		switch (cmdMsg->cmdType) {
 			case MUSIC_CMD:
-				printf("%s: MUSIC CMD\n", __FUNCTION__);
+				//printf("%s: MUSIC CMD\n", __FUNCTION__);
 				musicNum = cmdMsg->cmdValue[3] * 1000 + cmdMsg->cmdValue[2] * 100 + cmdMsg->cmdValue[1] * 10 + cmdMsg->cmdValue[0];
 				printf("%s: musicNum is %d\n", __FUNCTION__, musicNum);
 				playInterface(cmdMsg->cmdType, musicNum);
 				memset(cmdMsg->cmdValue, 0, 4 * sizeof(char));
 			break;
 			case OPTION_CMD:
-				printf("%s: OPTION_CMD\n", __FUNCTION__);
+				//printf("%s: OPTION_CMD\n", __FUNCTION__);
 			break;
 			case NUMBER_CMD:
-				printf("%s: NUMBER_CMD\n", __FUNCTION__);
+				//printf("%s: NUMBER_CMD\n", __FUNCTION__);
 				playInterface(cmdMsg->cmdType,  cmdMsg->keyNum);
 			break;
 			case LOCATION_MUSIC_CMD:
-				printf("%s: LOCATION_MUSIC_CMD\n", __FUNCTION__);
-				printf("%s: locationInfo is %ld\n", __FUNCTION__, cmdMsg->locationNum);
+				//printf("%s: LOCATION_MUSIC_CMD\n", __FUNCTION__);
+				//printf("%s: locationInfo is %ld\n", __FUNCTION__, cmdMsg->locationNum);
 				playInterface(cmdMsg->cmdType, cmdMsg->locationNum);
 			break;
 			default:
@@ -294,7 +294,7 @@ void *KeyThreadHandle(void *arg)
 			int i;
 			cmdMsg->cmdType = MUSIC_CMD;
 			isKeyMusicPlaying = 1;//when key music playing, location music can not play
-			printf("%s: key music is playing...\n", __FUNCTION__);
+			//printf("%s: key music is playing...\n", __FUNCTION__);
 			for (i = 0; i < musicNumIndex; i++) {
 				cmdMsg->cmdValue[musicNumIndex - i -1] = music_num[i];
 			}

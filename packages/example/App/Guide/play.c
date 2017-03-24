@@ -6,6 +6,9 @@
 #include <fcntl.h>
 #include <string.h>
 #include <dirent.h>
+#include<sys/time.h>
+#include<signal.h> 
+
 
 #include "play.h"
 #define DEBUG
@@ -32,6 +35,8 @@ static pthread_t musicThread;
 
 static char base_path[] = {"/mnt/sd/CHIGOORES/"};
 static enum LANGUAGE language = CHINESE;
+unsigned long int old_mNum = 0;
+unsigned long int oldLocationNum = 0;
 
 extern int isKeyMusicPlaying;
 
@@ -62,8 +67,17 @@ int sample_is_playable(unsigned int card, unsigned int device, unsigned int chan
 static int check_param(struct pcm_params *params, unsigned int param, unsigned int value,
                  char *param_name, char *param_unit);
 
+static void init_time()  ;
+static void init_sigaction(void) ;
+
+
 void playInterface(CMDTYPE cmd, unsigned long int mNum)
 {
+	if (mNum != old_mNum) {
+		old_mNum = mNum;
+	} else {
+		return;
+	}
 	if (playFlag == ENABLEPLAY) {
 		printf("%s: Now is playing\n", __FUNCTION__);
 		pthread_mutex_lock(&musicLock);
@@ -244,6 +258,7 @@ void InitPlay()
 	playFlag = DISABLEPLAY;
 	readResource();
 	pthread_create(&musicThread, NULL, MusicThreadHandle, NULL);
+	init_sigaction();
 }
 
 static int findMinDiffAngle(int *angleDiffArray, int index)
@@ -291,6 +306,44 @@ static int findLocationFile(int id, int usrAngle)
 	return angle;
 }
 
+void resetKeyFlag(int signo)  
+{  
+	printf("%s......\n",__FUNCTION__);
+	//cancel timer
+	exit_time();
+
+	if (oldLocationNum)
+		playInterface(LOCATION_MUSIC_CMD, oldLocationNum);
+} 
+
+void init_sigaction(void)  
+{  
+    struct sigaction tact;  
+    tact.sa_handler = resetKeyFlag;  
+    tact.sa_flags = 0;  
+    sigemptyset(&tact.sa_mask);  
+    sigaction(SIGALRM, &tact, NULL);  
+}  
+
+void init_time()   
+{  
+    struct itimerval value;  
+    value.it_value.tv_sec = 5;  
+    value.it_value.tv_usec = 0;  
+    value.it_interval = value.it_value;  
+    setitimer(ITIMER_REAL, &value, NULL);  
+} 
+
+void exit_time()
+{
+    struct itimerval value;  
+    value.it_value.tv_sec = 0;  
+    value.it_value.tv_usec = 0;  
+    value.it_interval = value.it_value;  
+    setitimer(ITIMER_REAL, &value, NULL);  
+}
+
+
 char *matchMusic(unsigned long int musicNum)
 {
 	char *name = (char *)malloc(sizeof(char) * 128);
@@ -309,8 +362,13 @@ char *matchMusic(unsigned long int musicNum)
 
 		sprintf(name,"%s%sId_%ld.wav", base_path, languagePath, musicNum);
 	} else if (cmdType == NUMBER_CMD) {
+		init_time();
 		sprintf(name, "%sSYSTEM/%ld.wav", base_path, musicNum);
 	} else if (cmdType == LOCATION_MUSIC_CMD) {
+		if (oldLocationNum != musicNum) {
+			oldLocationNum = musicNum;
+		}
+		
 		printf("%s: musicNum is %ld\n", __FUNCTION__, musicNum);
 		id = musicNum / 10000;
 		usrAngle = musicNum - id * 10000;
