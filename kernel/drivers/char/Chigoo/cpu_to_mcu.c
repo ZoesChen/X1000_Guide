@@ -35,44 +35,37 @@ static struct cdev char_dev_devs;// 定义一个cdev结构
 static	int mcu_major;
 static  int mcu_IRQ;
 
+typedef struct lOCATIONDATA
+{
+	 unsigned char   CMD;
+	 unsigned	 long int  Val;                   
+}lOCATIONDATA;
+
+
 static struct class *mcu_gpio_dev_class; 
 static unsigned int queue_flag;
 DECLARE_WAIT_QUEUE_HEAD(location_queue);
-
-#define CommTypeBits              4
-#define CommCmdBits               8
-#define CommDataBits              32
-#define CommReturnBits            4
-
 #define MCU_DATA0	GPIO_PC(26)
 #define MCU_DATA1	GPIO_PC(27)
 //#define MCU_DATA	GPIO_PD(00)
 #define MCU_ACK     GPIO_PD(03)
 #define MCU_ENA     GPIO_PD(01)
 #define MCU_CLK     GPIO_PD(02)
+#define SMCU_PWREN	GPIO_PB(20)
+#define MasterSendCommType         0x0A
+#define MasterRecvCommType         0x05
 
-//struct semaphore sem1;
-
-static int    IrqCount = 0;
-static u8     CommType = 0;
-static u8     SendType = 0; 
-static u32    AckStatues= 0; 
-
-//demo: give a mock data, high 4 bit num means ID, low 4 bit num means angle
-static long int location_test[] = {
-	60230250, //ID: 6023, Angle: 250
-	  1030000, //No angle location info
-	60310340,
-	  1050000,
-	60390250,
-	12910000, // test error info
-	60390120,
-	60450180,
-	60450320
-};
-
-static unsigned int mockIndex = -1;
-
+static int      IrqCount		= 0;
+static int      CommType		= 0;
+static int      SendType			= 0;
+static lOCATIONDATA RecvFormMcuData;
+static lOCATIONDATA SendToMcuData;
+static char     AckStatues      = 0; 
+static long int		 location_ir		= 0;
+static long int		 location_angle		= 0;
+static long int		 locationInfo		= 0;
+static long	int		 location_temp_ir 	= 0;
+static long	int		 locationTempInfo	= 0;
 
 static void ReposeACK(void)
 {
@@ -100,18 +93,19 @@ static void char_dev_setup_cdev(struct cdev *dev, int minor, struct file_operati
 static void mcu_gpio_init(void)
 {  
 	gpio_request(MCU_DATA1, "mcu_data1"); 
-	printk("MCU_DATA1 = %d\n",MCU_DATA1);
 	gpio_request(MCU_DATA0, "mcu_data1"); 
 	gpio_request(MCU_ACK, "mcu_ack"); 
 	gpio_request(MCU_ENA,"mcu_ena"); 
 	gpio_request(MCU_CLK, "mcu_clk"); 
-
+	gpio_request(SMCU_PWREN,"smcu_pwren");
+	
 	gpio_direction_input(MCU_DATA0);
 	gpio_direction_input(MCU_DATA1);
 	gpio_direction_output(MCU_ACK,0);
 	AckStatues=0;
 	gpio_direction_input(MCU_ENA);
 	gpio_direction_input(MCU_CLK);
+	gpio_direction_output(SMCU_PWREN,0);
 	printk("mcu_interface_gpio_init\n");
 }
 
@@ -123,16 +117,12 @@ static int mcu_open(struct inode *inode, struct file *filp)
 
 static ssize_t mcu_read(struct file * file,char * buf,size_t count,loff_t * f_ops) 
 { 
-    msleep(20000);
-    queue_flag = 1;
-    wake_up_interruptible(&location_queue);//
-    /********唤醒  --test will in mcu_isr********/
     wait_event_interruptible(location_queue,queue_flag);
-    if (mockIndex++ >= 9) {
-	mockIndex = 0;
-    }
-    copy_to_user(buf, &location_test[mockIndex],sizeof(int));
-    queue_flag = 0;
+	copy_to_user(buf, &locationInfo,sizeof(long int));
+    queue_flag 		= 0;
+	locationInfo		= 0;
+	location_ir		= 0;
+	location_angle	= 0;
     return 0; 
 } 
  
@@ -144,24 +134,89 @@ static int mcu_close(struct inode *inode, struct file *filp)
 static irqreturn_t mcu_isr(int irq, void *dev_id)
 {
 	int interrupt_num;
+    int rCount = 0;
 	interrupt_num = *(int*)dev_id;
 	if (interrupt_num!=mcu_IRQ)
 	{
+	    printk("interrupt_num invalid\n");
 		return IRQ_HANDLED;
-	}
+	}     
+
+    //接收数据
+    if(gpio_get_value(MCU_ENA) == 1)
+    {
+        CommType = 0;
+        IrqCount = 0;
+        RecvFormMcuData.CMD = 0;
+        RecvFormMcuData.Val = 0;
+        ReposeACK();		
+        return IRQ_HANDLED;
+    }
+
+    IrqCount++;
+    if(IrqCount < 3)
+    {
+        rCount = (IrqCount-1)*2;
+        if (gpio_get_value(MCU_DATA0)==1) CommType |=(0x1 <<(rCount+0));
+        if (gpio_get_value(MCU_DATA1)==1) CommType |=(0x1 <<(rCount+1));
+        if (IrqCount == 2)
+        {
+                if (CommType == MasterRecvCommType)
+                    {
+                        printk("RecvFromMcuData = %d\n",CommType);
+                    }
+        }
+     }else 
+     if (CommType == MasterSendCommType)
+     {
+        if (IrqCount < 7)
+        {
+            rCount=(IrqCount-3)*2;
+            if (gpio_get_value(MCU_DATA0)==1) RecvFormMcuData.CMD|=(0x1 <<(rCount+0));    
+            if (gpio_get_value(MCU_DATA1)==1) RecvFormMcuData.CMD |=(0x1 <<(rCount+1));    
+        }else
+        if(IrqCount < 23)
+         {
+            rCount=(IrqCount-7)*2;
+            if (gpio_get_value(MCU_DATA0)==1) RecvFormMcuData.Val|=((long int)0x1 <<(rCount+0));    
+            if (gpio_get_value(MCU_DATA1)==1) RecvFormMcuData.Val |=((long int)0x1 <<(rCount+1));    
+            if (IrqCount == 22)
+            {    
+                if(RecvFormMcuData.CMD == 0xA0)
+                {
+					location_ir = (RecvFormMcuData.Val)*10000;
+					location_temp_ir = location_ir;
+				}else 
+				if(RecvFormMcuData.CMD == 0xA1)
+					{
+							location_angle = RecvFormMcuData.Val;
+				}
+				locationTempInfo = location_ir + location_angle;
+				if((locationInfo != locationTempInfo) && locationTempInfo != 0)
+					{
+					location_ir	 = location_temp_ir;										
+					locationInfo = location_ir + location_angle;
+        	        printk("RecvFormMcuData.CMD = %d,locationInfo=%ld\n",RecvFormMcuData.CMD,locationInfo);
+					queue_flag = 1;
+					wake_up_interruptible(&location_queue);//唤醒
+				}
+            }
+        }
+     }else
+     if(CommType == MasterSendCommType)
+     {
+         printk("line = %d RecvFromMcuData = %d\n",__LINE__,CommType);
+     }else
+     {
+        printk("Recv ERROR CommType\n");
+     }
     
-    queue_flag = 1;
-    wake_up_interruptible(&location_queue);//唤醒
-//recive mcu data
-    
-  
   ReposeACK();
   return IRQ_HANDLED; 
 }
 
 unsigned int mcu_poll(struct file *file , struct poll_table_struct *wait)
 {
-    //获取struct xxx *dev = file
     unsigned int mask;
     printk("will poll wait...\n");
     poll_wait(file,&location_queue,wait);
