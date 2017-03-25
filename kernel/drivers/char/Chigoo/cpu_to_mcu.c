@@ -66,7 +66,8 @@ static long int		 location_angle		= 0;
 static long int		 locationInfo		= 0;
 static long	int		 location_temp_ir 	= 0;
 static long	int		 locationTempInfo	= 0;
-
+static char			 angleFlag			= 0;
+#define INITANGLE	360
 static void ReposeACK(void)
 {
   if (AckStatues)
@@ -122,7 +123,7 @@ static ssize_t mcu_read(struct file * file,char * buf,size_t count,loff_t * f_op
     queue_flag 		= 0;
 	locationInfo		= 0;
 	location_ir		= 0;
-	location_angle	= 0;
+	location_angle	= INITANGLE;
     return 0; 
 } 
  
@@ -188,17 +189,20 @@ static irqreturn_t mcu_isr(int irq, void *dev_id)
 					location_temp_ir = location_ir;
 				}else 
 				if(RecvFormMcuData.CMD == 0xA1)
-					{
-							location_angle = RecvFormMcuData.Val;
+				{
+						location_angle = RecvFormMcuData.Val;
 				}
 				locationTempInfo = location_ir + location_angle;
-				if((locationInfo != locationTempInfo) && locationTempInfo != 0)
-					{
+				if((locationInfo != locationTempInfo) && locationTempInfo != INITANGLE)
+				{
 					location_ir	 = location_temp_ir;										
 					locationInfo = location_ir + location_angle;
-        	        printk("RecvFormMcuData.CMD = %d,locationInfo=%ld\n",RecvFormMcuData.CMD,locationInfo);
-					queue_flag = 1;
-					wake_up_interruptible(&location_queue);//»½ÐÑ
+					if(locationInfo > INITANGLE+1)
+					{
+						printk("RecvFormMcuData.CMD = %d,locationInfo=%ld\n",RecvFormMcuData.CMD,locationInfo);
+						queue_flag = 1;
+						wake_up_interruptible(&location_queue);//»½ÐÑ
+					}
 				}
             }
         }

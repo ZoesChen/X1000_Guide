@@ -74,7 +74,7 @@ static void init_sigaction(void) ;
 
 void playInterface(CMDTYPE cmd, unsigned long int mNum)
 {
-	int tempFd;
+	FILE *tempFile;
 	if (mNum != old_mNum) {
 		old_mNum = mNum;
 	} else {
@@ -93,12 +93,12 @@ void playInterface(CMDTYPE cmd, unsigned long int mNum)
 	}
 
 	// pre judge if the music is exist
-	file = fopen(musicName, "rb");
-	if (file == NULL) {
+	tempFile = fopen(musicName, "rb");
+	if (tempFile == NULL) {
 		printf("%s: open %s fail\n", __FUNCTION__, musicName);
 		return;
 	} else {
-		close(file);
+		close(tempFile);
 	}
 
 	//pre judge if the music is playing
