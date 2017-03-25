@@ -37,6 +37,7 @@ static char base_path[] = {"/mnt/sd/CHIGOORES/"};
 static enum LANGUAGE language = CHINESE;
 unsigned long int old_mNum = 0;
 unsigned long int oldLocationNum = 0;
+static char *musicName = NULL;
 
 extern int isKeyMusicPlaying;
 
@@ -73,11 +74,33 @@ static void init_sigaction(void) ;
 
 void playInterface(CMDTYPE cmd, unsigned long int mNum)
 {
+	int tempFd;
 	if (mNum != old_mNum) {
 		old_mNum = mNum;
 	} else {
 		return;
 	}
+	
+	musicNumber = mNum;
+	cmdType = cmd;
+	musicName = matchMusic(musicNumber);
+
+	if (musicName == NULL) {
+		printf("Can not match music!\n");
+		if (isKeyMusicPlaying == 1)
+			isKeyMusicPlaying = 0;
+		return;
+	}
+
+// pre judge if the music is exist
+	file = fopen(musicName, "rb");
+	if (file == NULL) {
+		printf("%s: open %s fail\n", __FUNCTION__, musicName);
+		return;
+	} else {
+		close(file);
+	}
+	
 	if (playFlag == ENABLEPLAY) {
 		printf("%s: Now is playing\n", __FUNCTION__);
 		pthread_mutex_lock(&musicLock);
@@ -92,8 +115,7 @@ void playInterface(CMDTYPE cmd, unsigned long int mNum)
 	if (playFlag == DISABLEPLAY) {
 		printf("%s: Now is stoping\n", __FUNCTION__);
 		pthread_mutex_lock(&musicLock);
-		musicNumber = mNum;
-		cmdType = cmd;
+
 		playFlag = ENABLEPLAY;
 		pthread_cond_signal(&musicCond);
 		pthread_mutex_unlock(&musicLock);
@@ -109,23 +131,11 @@ void *MusicThreadHandle(void *arg)
 		pthread_mutex_unlock(&musicLock);
 		
 		while(playFlag == ENABLEPLAY) {
-			char *musicName = NULL;
-			musicName = matchMusic(musicNumber);
-			if (musicName == NULL) {
-				printf("Can not match music!\n");
-				if (isKeyMusicPlaying == 1)
-					isKeyMusicPlaying = 0;
-				return NULL;
-			}
-
 			file = fopen(musicName, "rb");
 			if (file == NULL) {
 				printf("Open %s fail\n", musicName);
 				playFlag = DISABLEPLAY;
-				free(musicName);
 				continue;
-			} else {
-				free(musicName);
 			}
 
 			if (!is_raw) {
