@@ -38,6 +38,7 @@ static enum LANGUAGE language = CHINESE;
 unsigned long int old_mNum = 0;
 unsigned long int oldLocationNum = 0;
 static char *musicName = NULL;
+static char oldMusicName[128] = {0};
 
 extern int isKeyMusicPlaying;
 
@@ -68,7 +69,6 @@ int sample_is_playable(unsigned int card, unsigned int device, unsigned int chan
 static int check_param(struct pcm_params *params, unsigned int param, unsigned int value,
                  char *param_name, char *param_unit);
 
-static void init_time()  ;
 static void init_sigaction(void) ;
 
 
@@ -92,13 +92,22 @@ void playInterface(CMDTYPE cmd, unsigned long int mNum)
 		return;
 	}
 
-// pre judge if the music is exist
+	// pre judge if the music is exist
 	file = fopen(musicName, "rb");
 	if (file == NULL) {
 		printf("%s: open %s fail\n", __FUNCTION__, musicName);
 		return;
 	} else {
 		close(file);
+	}
+
+	//pre judge if the music is playing
+	if (strcmp(musicName, oldMusicName) == 0) {
+		printf("%s is playing, do not replay it!!!\n", musicName);
+		return;
+	} else {
+		memset(oldMusicName, 0, 128 * sizeof(char));
+		strcpy(oldMusicName, musicName);
 	}
 	
 	if (playFlag == ENABLEPLAY) {

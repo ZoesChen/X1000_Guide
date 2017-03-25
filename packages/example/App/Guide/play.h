@@ -64,5 +64,7 @@ int StartPlay(int musicNum);
 void InitPlay();
 void StopPlay();
 void playInterface(CMDTYPE cmd, unsigned long int mNum);
+ void init_time()  ;
+ void exit_time();
 
 #endif

@@ -37,6 +37,7 @@ static pthread_t playThread;
 static pthread_t batteryThread;
 static int readKeyFlag = 0;
 static int readLocationFlag = 0;
+static unsigned long int old_location = 0;
 
 static int music_num[4] = {0};
 static int musicNum = -1;
@@ -293,8 +294,11 @@ void *KeyThreadHandle(void *arg)
 		if (musicNumIndex >= MAX_MUSIC_INDEX || keyCode == CHIGOO_KEYOK) {
 			int i;
 			cmdMsg->cmdType = MUSIC_CMD;
-			isKeyMusicPlaying = 1;//when key music playing, location music can not play
-			//printf("%s: key music is playing...\n", __FUNCTION__);
+			//when key music playing, location music can not play
+			isKeyMusicPlaying = 1;
+
+			//reset timer when this key action is a right action
+			exit_time();
 			for (i = 0; i < musicNumIndex; i++) {
 				cmdMsg->cmdValue[musicNumIndex - i -1] = music_num[i];
 			}
@@ -321,6 +325,14 @@ void *LocationThreadHandle(void *arg)
 	unsigned long int location;
 	while(readLocationFlag) {
 		ReadLocationInfo(&location);
+
+		//cancel key music first when user go to a new area, just judge IR num do not care geomagnetic inifo
+		if (old_location != location / 10000) {
+			old_location = location / 10000;
+			if (isKeyMusicPlaying == 1)
+				isKeyMusicPlaying = 0;
+		}
+
 		if (isKeyMusicPlaying == 1) {
 			sleep(1);
 			printf("%s: key music is playing, wait it finish...\n", __FUNCTION__);
