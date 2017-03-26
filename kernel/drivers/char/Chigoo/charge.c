@@ -4,6 +4,9 @@
 #include <linux/cdev.h>
 #include <linux/device.h>
 #include <linux/gpio.h>
+#include <linux/interrupt.h>
+#include <linux/irq.h>
+#include <asm/irq.h>
 
 
 //=======================字符设备驱动模板开始 ===========================//
@@ -12,6 +15,7 @@
 #define CHAR_DEV_CLASS_NAME   "char_dev_class"   //出现在/sys/devices/virtual/和/sys/class/中
 struct class *char_dev_class;  // class结构用于自动创建设备结点 
 static int major = 0;       // 0表示动态分配主设备号，可以设置成未被系统分配的具体的数字。
+static int ear_irq = 0;
 static struct cdev char_dev_cdev;// 定义一个cdev结构
 
 static int data = 10;
@@ -30,11 +34,14 @@ struct ChargeInfo {
 #define AUDIO_POWER	GPIO_PC(23)
 #define SPEAKER_SHUTDOWN GPIO_PB(06) // HIGH EFFECT
 #define EAR_SHUTDOWN GPIO_PB(07)//HIGH EFFECT
+#define EARPHONE_DET GPIO_PB(8)//L HAVEEAR HIGH NOEARPHONE
 
 #define CHARGING 		0
 #define UNCHARGING		1
 #define LOWPOWER		0
 #define NOMALPOWER	1
+#define NOEARPHONE	1
+#define HAVEEARPHONE 0
 
 #define LED_R_LIGHT		0x01
 #define LED_G_LIGHT		0x10
@@ -172,6 +179,7 @@ static void charge_gpio_init()
 	gpio_request(SPEAKER_SHUTDOWN, "speaker");
 	printk("\n*******************Request EAR_SHUTDOWN ********************\n");
 	gpio_request(EAR_SHUTDOWN, "ear");
+	gpio_request(EARPHONE_DET,"earphoe_det");
 
 	gpio_direction_input(IND_CHARGE);
 	gpio_direction_input(BVL_ALRT);
@@ -183,12 +191,36 @@ static void charge_gpio_init()
 	gpio_direction_output(SPEAKER_SHUTDOWN,1);
 	
 	gpio_direction_output(EAR_SHUTDOWN,0);
+	gpio_direction_input(EARPHONE_DET);
 }
 
+static irqreturn_t ear_det_isr(int irq,void * dev_id)
+{
+	int interrupt_num;
+	char val;
+	interrupt_num = *(int*)dev_id;
+	if (interrupt_num!=ear_irq)
+	{
+	    printk("interrupt_num invalid\n");
+		return IRQ_HANDLED;
+	}
+	val = (gpio_get_value(EARPHONE_DET) == 1) ? NOEARPHONE : HAVEEARPHONE;
+	if(val)
+	{//no earphone
+		gpio_direction_output(SPEAKER_SHUTDOWN,1);
+		gpio_direction_output(EAR_SHUTDOWN,0);
+	}else
+		{//have earphone
+			gpio_direction_output(SPEAKER_SHUTDOWN,0);
+			gpio_direction_output(EAR_SHUTDOWN,1);	
+	}
+	
+}
 //   设备初始化 
 static int char_dev_init(void)
 {
     int result;
+	int ret;
     dev_t dev = MKDEV(major, 0);//将主次编号转换为一个dev_t类型
     printk("Enter into char_dev_init\n");
     if(major)
@@ -212,7 +244,16 @@ static int char_dev_init(void)
     char_dev_setup_cdev(&char_dev_cdev, 0, &char_dev_fops);
     printk("The major of the char_dev device is %d.\n", major);
     //==== 有中断的可以在此注册中断：request_irq，并要实现中断服务程序 ===//
-    // 创建设备节点
+	ear_irq = gpio_to_irq(EARPHONE_DET);
+	disable_irq(ear_irq);
+	irq_set_irq_type(ear_irq,IRQ_TYPE_EDGE_BOTH);//IRQF_TRIGGER_RISING);
+	ret = request_irq(ear_irq, ear_det_isr,IRQF_DISABLED, CHAR_DEV_CLASS_NAME,&ear_irq);
+	if(ret != 0)
+	{
+		return -ENODEV;
+	}
+
+	// 创建设备节点
     char_dev_class = class_create(THIS_MODULE,CHAR_DEV_CLASS_NAME);
     if (IS_ERR(char_dev_class))
     {
