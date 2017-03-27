@@ -13,6 +13,7 @@ case "$1" in
 	echo mass_storage,adb > functions
 	echo 1 > enable
 	/sbin/adbserver.sh &
+	/bin/guide &
 	;;
   stop)
 	;;

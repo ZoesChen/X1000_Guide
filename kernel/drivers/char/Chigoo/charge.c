@@ -209,12 +209,14 @@ static irqreturn_t ear_det_isr(int irq,void * dev_id)
 	{//no earphone
 		gpio_direction_output(SPEAKER_SHUTDOWN,1);
 		gpio_direction_output(EAR_SHUTDOWN,0);
+		//printk("SPEAKER_SHUTDOWN = %d ,EAR_SHUTDOWN = %d\n",gpio_get_value(SPEAKER_SHUTDOWN),gpio_get_value(EAR_SHUTDOWN));
 	}else
 		{//have earphone
 			gpio_direction_output(SPEAKER_SHUTDOWN,0);
 			gpio_direction_output(EAR_SHUTDOWN,1);	
+			//printk("SPEAKER_SHUTDOWN = %d ,EAR_SHUTDOWN = %d\n",gpio_get_value(SPEAKER_SHUTDOWN),gpio_get_value(EAR_SHUTDOWN));
 	}
-	
+	return IRQ_HANDLED;
 }
 //   设备初始化 
 static int char_dev_init(void)
@@ -244,9 +246,10 @@ static int char_dev_init(void)
     char_dev_setup_cdev(&char_dev_cdev, 0, &char_dev_fops);
     printk("The major of the char_dev device is %d.\n", major);
     //==== 有中断的可以在此注册中断：request_irq，并要实现中断服务程序 ===//
+    charge_gpio_init();
 	ear_irq = gpio_to_irq(EARPHONE_DET);
 	disable_irq(ear_irq);
-	irq_set_irq_type(ear_irq,IRQ_TYPE_EDGE_BOTH);//IRQF_TRIGGER_RISING);
+	irq_set_irq_type(ear_irq,IRQ_TYPE_EDGE_BOTH);//IRQF_TRIGGER_RISING);IRQ_TYPE_EDGE_BOTH
 	ret = request_irq(ear_irq, ear_det_isr,IRQF_DISABLED, CHAR_DEV_CLASS_NAME,&ear_irq);
 	if(ret != 0)
 	{
@@ -261,7 +264,7 @@ static int char_dev_init(void)
         return 0;
     }
     device_create(char_dev_class, NULL, dev, NULL, CHAR_DEV_NODE_NAME);
-    charge_gpio_init();
+//    charge_gpio_init();
     printk("char_dev device installed.\n");
     return 0;
 }
