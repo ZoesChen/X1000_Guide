@@ -36,8 +36,8 @@ struct ChargeInfo {
 #define EAR_SHUTDOWN GPIO_PB(07)//HIGH EFFECT
 #define EARPHONE_DET GPIO_PB(8)//L HAVEEAR HIGH NOEARPHONE
 
-#define CHARGING 		0
-#define UNCHARGING		1
+#define CHARGING 		1
+#define UNCHARGING		0
 #define LOWPOWER		0
 #define NOMALPOWER	1
 #define NOEARPHONE	1
@@ -46,6 +46,7 @@ struct ChargeInfo {
 #define LED_R_LIGHT		0x01
 #define LED_G_LIGHT		0x10
 #define LED_B_LIGHT		0x11
+#define ALL_OFF			0x00
 
 #define ON	0
 #define OFF	1
@@ -75,7 +76,7 @@ static int char_dev_release (struct inode *node, struct file *file)
 ssize_t char_dev_read(struct file *file,char __user *buff,size_t count,loff_t *offp)
 {
     chargeInfo.isCharging = (gpio_get_value_cansleep(IND_CHARGE) == 1) ? CHARGING : UNCHARGING;
-    chargeInfo.isLowPower = (gpio_get_value_cansleep(BVL_ALRT) == 1) ? LOWPOWER : NOMALPOWER;
+    chargeInfo.isLowPower = (gpio_get_value_cansleep(BVL_ALRT) == 0) ? LOWPOWER : NOMALPOWER;
 	//printk("%s, %s\n", chargeInfo.isCharging ? "Charging" : "UnCharged", chargeInfo.isLowPower ? "LOW" : "NORMAL");
 	copy_to_user(buff, &chargeInfo, sizeof(chargeInfo));
     return 0;
@@ -126,8 +127,12 @@ charge_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			gpio_set_value(LED_G, OFF);
 			gpio_set_value(LED_B, ON);
 			gpio_set_value(LED_R, OFF);
-
 		break;
+		case ALL_OFF:
+			gpio_set_value(LED_G, OFF);
+			gpio_set_value(LED_B, OFF);
+			gpio_set_value(LED_R, OFF);
+			break;
 		default:
 		break;
 	}

@@ -26,7 +26,9 @@
 #define LED_R_LIGHT		0x01
 #define LED_G_LIGHT		0x10
 #define LED_B_LIGHT		0x11
+#define ALL_OFF			0x00
 
+#define OVERTIMER		(10 *60 * 1000) //10minutes
 
 /*
  * Parameter
@@ -35,9 +37,11 @@ static pthread_t keyThread;
 static pthread_t locationThread;
 static pthread_t playThread;
 static pthread_t batteryThread;
+static pthread_t idleThread;
 static int readKeyFlag = 0;
 static int readLocationFlag = 0;
 static unsigned long int old_location = 0;
+static int needBeganCount = 0;
 
 static int music_num[4] = {0};
 static int musicNum = -1;
@@ -45,6 +49,7 @@ static int musicNum = -1;
 static int batteryDevFd = -1;
 
 int isKeyMusicPlaying = 0;
+static unsigned long int overTimeCount =  OVERTIMER;
 
 //static int location_music_num[5] = {0};
 //static int locationMusicNum = -1;
@@ -78,6 +83,7 @@ static void *KeyThreadHandle(void *arg);
 static void *PlayThreadHandle(void *arg);
 static void *LocationThreadHandle(void *arg);
 static void *BatteryThreadHandle(void *arg);
+static void *IdleThreadHandle(void *arg);
 
 
 static enum QueueCondition whichQueueFree()
@@ -142,6 +148,7 @@ static int Init()
    	pthread_create(&locationThread, NULL, LocationThreadHandle, NULL);
 	pthread_create(&playThread, NULL, PlayThreadHandle, NULL);
 	pthread_create(&batteryThread, NULL, BatteryThreadHandle, NULL);
+	pthread_create(&idleThread, NULL, IdleThreadHandle, NULL);
 
 #ifdef DEBUG_ON_DEVBOARD
 //Just for debug, CTRL+C to fill up array music_num, then push into keyqueue
@@ -157,13 +164,18 @@ static int Init()
 
 void *BatteryThreadHandle(void *arg)
 {
+	int chargeLed = 0;
 	while(readKeyFlag) {
 		read(batteryDevFd, &chargeInfo, sizeof(chargeInfo));
-		//printf("%s, %s\n", chargeInfo.isCharging ? "Charging" : "UnCharged", chargeInfo.isLowPower ? "LOW" : "NORMAL");
+		printf("%s, %s\n", chargeInfo.isCharging ? "Charging" : "UnCharged", chargeInfo.isLowPower ? "LOW" : "NORMAL");
 
 		if (chargeInfo.isCharging == 1) {
 		//Charging light Blue led
-			ioctl(batteryDevFd, LED_B_LIGHT, NULL);
+			if (chargeLed == 0) {
+				ioctl(batteryDevFd, LED_B_LIGHT, NULL);
+			} else {
+				ioctl(batteryDevFd, ALL_OFF, NULL);
+			}
 		}  else if (chargeInfo.isLowPower == 1) {
 		//Low Power light Red led
 			ioctl(batteryDevFd, LED_R_LIGHT, NULL);
@@ -185,7 +197,16 @@ void *PlayThreadHandle(void *arg)
 		switch(whichQueueFree()){
 			case BOTH_FREE:
 				//printf("BOTH_FREE\n");
+				//when every queue are free, start needBeganCount
+				printf("both free, start needBeganCount\n");
+				needBeganCount = 1;
+
 				pthread_cond_wait(&playThreadCond, &playThreadLock);
+
+				//when any queue have action, stop needBeganCount
+				printf("both free, stop needBeganCount\n");
+				needBeganCount = 0;
+				usleep(1500);
 				printf("%s: Wake up by cond\n", __FUNCTION__);
 				pthread_mutex_unlock(&playThreadLock);
 				continue;
@@ -250,6 +271,24 @@ CMDTYPE JudgeKeyCmd(int *value)
 		cmdType = OPTION_CMD;
 	}
 	return cmdType;
+}
+
+void *IdleThreadHandle(void *arg)
+{
+	while(readKeyFlag) {
+		while (needBeganCount) {
+			usleep(1000);
+			if (overTimeCount-- <= 0) {
+				overTimeCount = OVERTIMER;
+				system("echo mem >/sys/power/state");
+			}
+		} 
+		printf("needBeganCount be stoped! \n");
+		overTimeCount = OVERTIMER;
+
+		//every 30 seconds to check needBeganCount
+		sleep(30);
+	}
 }
 
 void *KeyThreadHandle(void *arg)
