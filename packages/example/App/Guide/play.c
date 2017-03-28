@@ -404,6 +404,14 @@ char *matchMusic(unsigned long int musicNum)
 		} else {
 			return NULL;
 		}
+	}else if (cmdType == OPTION_CMD) {
+		if (musicNum == CHIGOO_LANGUAGE) {
+			if (language == CHINESE) {
+				language = ENGLISH;
+			} else {
+				language = CHINESE;
+			}
+		}
 	}
 	printf("%s: the music name is %s\n", __FUNCTION__, name);
 

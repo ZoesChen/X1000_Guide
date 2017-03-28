@@ -255,7 +255,7 @@ void *PlayThreadHandle(void *arg)
 				memset(cmdMsg->cmdValue, 0, 4 * sizeof(char));
 			break;
 			case OPTION_CMD:
-				//printf("%s: OPTION_CMD\n", __FUNCTION__);
+				playInterface(cmdMsg->cmdType, cmdMsg->keyNum);
 			break;
 			case NUMBER_CMD:
 				//printf("%s: NUMBER_CMD\n", __FUNCTION__);
@@ -341,7 +341,12 @@ void *KeyThreadHandle(void *arg)
 		} else if (OPTION_CMD == cmdMsg->cmdType) {
 			cmdMsg->keyNum = keyCode;
 			//ToDo: implement option cmd;
-			//......
+			pthread_mutex_lock(&playThreadLock);
+			//printf("[%s] After lock\n", __FUNCTION__);
+			Push(cmdMsg, &keyQueue);
+			pthread_cond_signal(&playThreadCond);
+			pthread_mutex_unlock(&playThreadLock);
+
 		}
 
 		//wait something finish
