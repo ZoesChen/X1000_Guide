@@ -75,7 +75,10 @@ static int char_dev_release (struct inode *node, struct file *file)
 用来找出对用户空间地址的错误使用.*/
 ssize_t char_dev_read(struct file *file,char __user *buff,size_t count,loff_t *offp)
 {
-    chargeInfo.isCharging = (gpio_get_value_cansleep(IND_CHARGE) == 1) ? CHARGING : UNCHARGING;
+    //L: Charging, H: UnCharging
+    chargeInfo.isCharging = (gpio_get_value_cansleep(IND_CHARGE) == 0) ? CHARGING : UNCHARGING;
+
+    //L : LowPower, H: NomalPower
     chargeInfo.isLowPower = (gpio_get_value_cansleep(BVL_ALRT) == 0) ? LOWPOWER : NOMALPOWER;
 	//printk("%s, %s\n", chargeInfo.isCharging ? "Charging" : "UnCharged", chargeInfo.isLowPower ? "LOW" : "NORMAL");
 	copy_to_user(buff, &chargeInfo, sizeof(chargeInfo));

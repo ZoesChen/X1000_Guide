@@ -30,6 +30,12 @@
 
 #define OVERTIMER		(10 *60 * 1000) //10minutes
 
+#define CHARGING 		1
+#define UNCHARGING		0
+#define LOWPOWER		0
+#define NOMALPOWER	1
+
+
 /*
  * Parameter
  * */
@@ -167,23 +173,34 @@ void *BatteryThreadHandle(void *arg)
 	int chargeLed = 0;
 	while(readKeyFlag) {
 		read(batteryDevFd, &chargeInfo, sizeof(chargeInfo));
-		printf("%s, %s\n", chargeInfo.isCharging ? "Charging" : "UnCharged", chargeInfo.isLowPower ? "LOW" : "NORMAL");
 
-		if (chargeInfo.isCharging == 1) {
-		//Charging light Blue led
+		#ifdef DEBUG_A90
+		printf("%s, %s\n", (chargeInfo.isCharging == CHARGING) ? "Charging" : "UnCharged", 
+			(chargeInfo.isLowPower == LOWPOWER) ? "LOW" : "NORMAL");
+		#endif
+
+		/*
+		*	charging: red light flash	frequnce = 1 s
+		*	uncharging && normal power: blue light
+		*	uncharging && low power: red light
+		*/
+
+		if (chargeInfo.isCharging == CHARGING) {
 			if (chargeLed == 0) {
-				ioctl(batteryDevFd, LED_B_LIGHT, NULL);
+				chargeLed = 1;
+				ioctl(batteryDevFd, LED_R_LIGHT, NULL);
 			} else {
+				chargeLed = 0;
 				ioctl(batteryDevFd, ALL_OFF, NULL);
 			}
-		}  else if (chargeInfo.isLowPower == 1) {
-		//Low Power light Red led
+			sleep(1);
+		}  else if (chargeInfo.isLowPower == LOWPOWER) {
 			ioctl(batteryDevFd, LED_R_LIGHT, NULL);
+			sleep(5);//read battery stat erery 5 seconds
 		} else {
-		//UnCharge and Normal power, light green led
-			ioctl(batteryDevFd, LED_G_LIGHT, NULL);
+			ioctl(batteryDevFd, LED_B_LIGHT, NULL);
+			sleep(5);//read battery stat erery 5 seconds
 		}
-		sleep(5);//read battery stat erery 5 seconds
 	}
 	return NULL;
 }
