@@ -208,6 +208,9 @@ void *BatteryThreadHandle(void *arg)
 void *PlayThreadHandle(void *arg)
 {
 	CMDMSG *cmdMsg;
+	//welcom music
+	
+	playInterface(MUSIC_CMD, 9999);
 	
 	while(readKeyFlag) {
 		pthread_mutex_lock(&playThreadLock);

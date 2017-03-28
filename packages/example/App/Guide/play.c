@@ -370,6 +370,11 @@ char *matchMusic(unsigned long int musicNum)
 	int id = 0;
 	int usrAngle = 0;
 	int locationAngle = 0;
+
+	if (musicNum == 9999) {
+		sprintf(name, "%sSYSTEM/9999.wav", base_path);
+		return name;
+	}
 	
 	if (language == CHINESE) {
 		strcpy(languagePath,"CN/");
