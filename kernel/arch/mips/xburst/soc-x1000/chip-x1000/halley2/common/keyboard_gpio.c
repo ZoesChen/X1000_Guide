@@ -5,22 +5,6 @@
 #include "board_base.h"
 
 struct gpio_keys_button __attribute__((weak)) board_buttons[] = {
-#ifdef GPIO_SW1_KEY
-	{
-		.gpio		= GPIO_SW1_KEY,
-		.code		= A90_GUIDE_KEY0,
-		.desc		= "sw1 key",
-		.active_low = 1,
-	},
-#endif
-#ifdef GPIO_SW2_KEY
-	{
-		.gpio		= GPIO_SW2_KEY,
-		.code		= A90_GUIDE_KEY1,
-		.desc		= "sw2 key",
-		.active_low = 1,
-	},
-#endif
 #ifdef GPIO_HOME_KEY
 	{
 		.gpio		= GPIO_HOME_KEY,

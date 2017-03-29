@@ -1,29 +1,6 @@
 #ifndef _GPIO_KEYS_H
 #define _GPIO_KEYS_H
 
-#include <gpio.h>
-
-#define A90_GUIDE_KEY0 		10
-#define A90_GUIDE_KEY1 		1
-#define A90_GUIDE_KEY2 		2
-#define A90_GUIDE_KEY3 		3
-#define A90_GUIDE_KEY4 		4
-#define A90_GUIDE_KEY5 		5
-#define A90_GUIDE_KEY6 		6
-#define A90_GUIDE_KEY7 		7
-#define A90_GUIDE_KEY8 		8
-#define A90_GUIDE_KEY9 		9
-#define A90_GUIDE_KEYCE		11
-#define A90_GUIDE_KEYOK		12
-#define A90_GUIDE_KEYP		13 // Play & Pause
-#define A90_GUIDE_KEY_VALUEUP 14
-#define A90_GUIDE_KEY_VALUEDOWN 15
-#define A90_GUIDE_KEY_BACK	16
-
-
-#define GPIO_SW1_KEY	GPIO_PA(10)
-#define GPIO_SW2_KEY	GPIO_PA(11)
-
 struct device;
 
 struct gpio_keys_button {

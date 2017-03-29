@@ -34,6 +34,9 @@
 
 /* device IO define array */
 struct jz_gpio_func_def platform_devio_array[] = {
+#ifdef CONFIG_CHIGOO_DRIVER
+		CHIGOO_GPIO,
+#endif
 #ifdef CONFIG_JZMMC_V12_MMC0_PA_4BIT
 	MSC0_PORTA_4BIT,
 #endif
@@ -49,9 +52,13 @@ struct jz_gpio_func_def platform_devio_array[] = {
 #ifdef CONFIG_I2C1_V12_PA
 	I2C1_PORTA,
 #endif
-/*#ifdef CONFIG_I2C1_V12_PC
+
+#ifndef CHIGOO_GPIO
+#ifdef CONFIG_I2C1_V12_PC
 	I2C1_PORTC,
-#endif*/
+#endif
+#endif
+
 #ifdef CONFIG_I2C2_V12_JZ
 	I2C2_PORTD,
 #endif
@@ -93,9 +100,12 @@ struct jz_gpio_func_def platform_devio_array[] = {
     DMIC1_PORTB,
 #endif
 
+#ifndef CHIGOO_GPIO
 #ifdef CONFIG_LCD_V13_SLCD_8BIT
 	SLCDC_PORTAB_8BIT,
 #endif
+#endif
+
 #ifdef CONFIG_LCD_V13_SLCD_9BIT
 	SLCDC_PORTAB_9BIT,
 #endif
@@ -118,9 +128,11 @@ struct jz_gpio_func_def platform_devio_array[] = {
 	PWM_PORTC_BIT4,
 #endif
 
-/*#ifdef CONFIG_JZ_MAC
+#ifndef CHIGOO_GPIO
+#ifdef CONFIG_JZ_MAC
 	RMII_PORTB,
-#endif*/
+#endif
+#endif
 
 #ifdef CONFIG_USB_DWC2_DRVVBUS_PIN
 	OTG_DRVVUS,
@@ -142,9 +154,6 @@ struct jz_gpio_func_def platform_devio_array[] = {
 #endif
 #ifdef CONFIG_JZ_SPI0_PD
 	SSI0_PORTD,
-#endif
-#ifdef CONFIG_CHIGOO_DRIVER
-	CHIGOO_GPIO,
 #endif
 };
 

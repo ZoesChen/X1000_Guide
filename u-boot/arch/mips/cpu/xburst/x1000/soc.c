@@ -90,7 +90,6 @@ static void jz_burner_boot(void)
 #endif
 void board_init_f(ulong dummy)
 {
-	printf("board_init_f ++++++\n", );
 	/* Set global data pointer */
 	gd = &gdata;
 

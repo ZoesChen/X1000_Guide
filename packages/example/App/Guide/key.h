@@ -1,7 +1,7 @@
 #ifndef _GUIDE_KEY_H_
 #define _GUIDE_KEY_H_
 
-#define KEY_DEVICE "/dev/input/event0"
+#define KEY_DEVICE "/dev/input/event1"
 #define CHIGOO_KEY1	1
 #define CHIGOO_KEY2 2
 #define CHIGOO_KEY3 3
