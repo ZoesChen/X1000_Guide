@@ -8,11 +8,10 @@
 
 static int keyFd = -1;
 static struct input_event *event = NULL;
-static int old_sec = -1;
-static int new_sec = -1;
+static unsigned long int old_sec = -1;
+static unsigned long int new_sec = -1;
 static int old_key = -1;
 static int new_key = -1;
-
 int OpenKeyDev()
 {
 	keyFd = open(KEY_DEVICE, O_RDONLY);
@@ -47,14 +46,20 @@ int ReadKey(int *keyCode)
 		}
 		
 		if (event->type == EV_KEY) {
-			new_sec = event->time.tv_sec;
+			if(event->code == CHIGOO_VOLUME_PLUSE || event->code == CHIGOO_VOLUME_REDUSE)
+				{
+					*keyCode = event->code;				
+					return 0;
+			}
+			new_sec = (event->time.tv_sec) * 1000000 + event->time.tv_usec;
 			new_key = event->code;
-			printf("\n********************new_key = %d, new sec=%d********************\n", new_key, new_sec);
-			if (new_key == old_key && (new_sec - old_sec) < 1) {
+			//printf("\n********************new_key = %d, new sec=%ld ********************\n", new_key, new_sec);
+			if (new_key == old_key && (new_sec - old_sec) < 1500000) {
 				//printf("[%s] the same key %d report too frequence %d!\n", __FUNCTION__, new_key, (new_sec - old_sec));
 				return -1;
 			}
 			*keyCode = event->code;
+			printf("keyCode = %d \n",event->code);
 		} else {
 			return -1;
 		}

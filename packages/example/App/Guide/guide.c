@@ -293,6 +293,27 @@ CMDTYPE JudgeKeyCmd(int *value)
 	return cmdType;
 }
 
+static void VolumeContrl(int *value)
+{
+	int val = *value;
+	static buffer[10] = {0};
+	static int volume = 31;
+	if(volume > 31)
+		volume = 31;
+	else if(volume < 6)
+		volume = 6;
+	sprintf(buffer,"tinymix 1 %d",volume);
+	if(val == CHIGOO_VOLUME_PLUSE){
+		system(buffer);
+		volume += 5;
+//		printf("%s tinymix 1 %d\n",__FUNCTION__,volume);
+	}
+	if(val == CHIGOO_VOLUME_REDUSE){
+		system(buffer);
+		volume -= 5;
+//		printf("%s tinymix 1 10\n",__FUNCTION__);
+	}
+}
 void *IdleThreadHandle(void *arg)
 {
 	while(readKeyFlag) {
@@ -330,7 +351,6 @@ void *KeyThreadHandle(void *arg)
 			continue;
 		}
 		cmdMsg->cmdType = JudgeKeyCmd(&keyCode);
-
 		if (NUMBER_CMD == cmdMsg->cmdType) {
 			cmdMsg->keyNum = keyCode;
 			printf("[%s] receive %d key\n", __FUNCTION__, keyCode);
@@ -343,6 +363,7 @@ void *KeyThreadHandle(void *arg)
 			music_num[musicNumIndex++] = keyCode;
 		} else if (OPTION_CMD == cmdMsg->cmdType) {
 			cmdMsg->keyNum = keyCode;
+			VolumeContrl(&keyCode);
 			//ToDo: implement option cmd;
 			pthread_mutex_lock(&playThreadLock);
 			//printf("[%s] After lock\n", __FUNCTION__);
