@@ -75,11 +75,11 @@ static void init_sigaction(void) ;
 void playInterface(CMDTYPE cmd, unsigned long int mNum)
 {
 	FILE *tempFile;
-	if (mNum != old_mNum) {
+	/*if (mNum != old_mNum) {
 		old_mNum = mNum;
 	} else {
 		return;
-	}
+	}*/
 	
 	musicNumber = mNum;
 	cmdType = cmd;
@@ -102,7 +102,7 @@ void playInterface(CMDTYPE cmd, unsigned long int mNum)
 	}
 
 	//pre judge if the music is playing
-	if (strcmp(musicName, oldMusicName) == 0) {
+	if ((strcmp(musicName, oldMusicName) == 0) && (cmdType != NUMBER_CMD)) {
 		printf("%s is playing, do not replay it!!!\n", musicName);
 		return;
 	} else {
