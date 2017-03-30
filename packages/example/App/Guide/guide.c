@@ -28,7 +28,7 @@
 #define LED_B_LIGHT		0x11
 #define ALL_OFF			0x00
 
-#define OVERTIMER		(10 *60 * 1000) //10minutes
+#define OVERTIMER		(10 * 60 * 1000) //10minutes
 
 #define CHARGING 		1
 #define UNCHARGING		0
@@ -53,9 +53,14 @@ static int music_num[4] = {0};
 static int musicNum = -1;
 
 static int batteryDevFd = -1;
+static int powerDevFd  = -1;
 
 int isKeyMusicPlaying = 0;
 static unsigned long int overTimeCount =  OVERTIMER;
+
+
+static int wakeupCount = -1;
+
 
 //static int location_music_num[5] = {0};
 //static int locationMusicNum = -1;
@@ -134,6 +139,24 @@ static int OpenBatteryDev()
 	}
 }
 
+static int OpenPowerDev()
+{
+	powerDevFd = open("/sys/power/wakeup_count", O_RDONLY);
+	if (powerDevFd <= 0) {
+		printf("Open power dev fail\n");
+		return FAIL;
+	} else {
+		return SUCCESS;
+	}
+}
+
+static void ClosePowerDev()
+{
+	if (powerDevFd > 0)
+		close(powerDevFd);
+	return;
+}
+
 static int Init()
 {
 	if (OpenKeyDev() < 0) {
@@ -147,6 +170,11 @@ static int Init()
 	if (OpenBatteryDev() < 0) {
 		return FAIL;
 	}
+
+	if (OpenPowerDev() == FAIL) {
+		return FAIL;
+	}
+	
 	InitPlay();
 	InitQueue();
 
@@ -171,6 +199,8 @@ static int Init()
 void *BatteryThreadHandle(void *arg)
 {
 	int chargeLed = 0;
+	char powerInfo[8] = {0}; 
+	int tempCount = -1;
 	while(readKeyFlag) {
 		read(batteryDevFd, &chargeInfo, sizeof(chargeInfo));
 
@@ -178,6 +208,18 @@ void *BatteryThreadHandle(void *arg)
 		printf("%s, %s\n", (chargeInfo.isCharging == CHARGING) ? "Charging" : "UnCharged", 
 			(chargeInfo.isLowPower == LOWPOWER) ? "LOW" : "NORMAL");
 		#endif
+
+		OpenPowerDev();
+		read(powerDevFd, powerInfo, 8 * sizeof(char));
+		tempCount = atoi(powerInfo);
+		//printf("wakeupCount is %d, tempCount is %d\n", wakeupCount, tempCount);
+		if (wakeupCount != tempCount) {
+			wakeupCount = tempCount;
+			SetWakeUpCmd();
+		}
+		ClosePowerDev();
+		
+		memset(powerInfo, 0, 8 * sizeof(char));
 
 		/*
 		*	charging: red light flash	frequnce = 1 s

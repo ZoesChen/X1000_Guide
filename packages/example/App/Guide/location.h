@@ -6,5 +6,7 @@ int OpenMcuDev();
 int ReadLocationInfo(unsigned long int *LocationInfo);
 
 int CloseMcuDev();
+void SetWakeUpCmd();
+
 #endif
 

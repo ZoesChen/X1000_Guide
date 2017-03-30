@@ -29,6 +29,8 @@
 
 #define TINTERFACE_NUM           168
 #define TINTERFACE_DEVNAME	    "mcu_dev"
+#define WAKEUPCMD 		0xff
+
 
 static struct cdev char_dev_devs;// 定义一个cdev结构
 
@@ -231,6 +233,20 @@ unsigned int mcu_poll(struct file *file , struct poll_table_struct *wait)
     return mask;
 }
 
+static long
+mcu_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+{
+	printk("%s: cmd = %d\n", __FUNCTION__, cmd);
+	switch(cmd) {
+	case WAKEUPCMD:
+		mcu_gpio_init();
+		break;
+	default:
+		break;
+	}
+}
+
+
 static struct file_operations mcu_fops = {
 	.owner  =   THIS_MODULE,
 //    .probe  =   mcu_probe,
@@ -238,6 +254,7 @@ static struct file_operations mcu_fops = {
 	.read   =   mcu_read,
  	.release=   mcu_close,
  	.poll   =   mcu_poll,
+ 	.unlocked_ioctl =  mcu_unlocked_ioctl,
 };
 
 static int __init	mcu_dev_init(void)

@@ -12,6 +12,9 @@
 
 static int McuFd;
 
+#define WAKEUPCMD 		0xff
+
+
 int OpenMcuDev()
 {
 	printf("Enter into OpenMcuDev\n");
@@ -22,6 +25,14 @@ int OpenMcuDev()
 	}
     
 	return 0;
+}
+
+void SetWakeUpCmd()
+{
+	printf("Will set wake up cmd\n");
+	if (McuFd > 0) {
+		ioctl(McuFd, WAKEUPCMD, NULL);
+	}
 }
 
 int ReadLocationInfo(unsigned long int *LocationInfo)
