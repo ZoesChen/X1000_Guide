@@ -37,7 +37,7 @@ static char base_path[] = {"/mnt/sd/CHIGOORES/"};
 static enum LANGUAGE language = CHINESE;
 unsigned long int old_mNum = 0;
 unsigned long int oldLocationNum = 0;
-static char *musicName = NULL;
+static char musicName[128] = {0};
 static char oldMusicName[128] = {0};
 
 extern int isKeyMusicPlaying;
@@ -75,22 +75,22 @@ static void init_sigaction(void) ;
 void playInterface(CMDTYPE cmd, unsigned long int mNum)
 {
 	FILE *tempFile;
-	/*if (mNum != old_mNum) {
-		old_mNum = mNum;
-	} else {
-		return;
-	}*/
+	char *tempName = NULL;
 	
 	musicNumber = mNum;
 	cmdType = cmd;
-	musicName = matchMusic(musicNumber);
+	tempName = matchMusic(musicNumber);
 
-	if (musicName == NULL) {
+	if (tempName == NULL) {
 		printf("Can not match music!\n");
 		if (isKeyMusicPlaying == 1)
 			isKeyMusicPlaying = 0;
 		return;
 	}
+
+	memset(musicName, 0, 128);
+	strcpy(musicName, tempName);
+	free(tempName);
 
 	// pre judge if the music is exist
 	tempFile = fopen(musicName, "rb");
