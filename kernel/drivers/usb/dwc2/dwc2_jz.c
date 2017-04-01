@@ -161,11 +161,11 @@ static void usb_plug_change(struct dwc2_jz *jz) {
 
 	int insert = __dwc2_get_detect_pin_status(jz);
 	struct dwc2 *dwc = platform_get_drvdata(&jz->dwc2);
-	pr_info("DWC USB %s\n", insert ? "connect" : "disconnect");
+	pr_info("DWC USB %s\n", (!insert) ? "connect" : "disconnect");
 	dwc2_disable_global_interrupts(dwc);
 	synchronize_irq(dwc->irq);
 	flush_work(&dwc->otg_id_work);
-	dwc2_gadget_plug_change(insert);
+	dwc2_gadget_plug_change(!insert);
 	if (dwc->lx_state != DWC_OTG_L3)
 		dwc2_enable_global_interrupts(dwc);
 }
